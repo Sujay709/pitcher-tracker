@@ -1,1 +1,1 @@
-Congressinal App Chall submisstion, in progress.
+Congressinal App Chall submission, in progress.
