@@ -1,5 +1,5 @@
 import { loadOutings, addOuting } from "./storage.js";
-import { requiredRest, addDays, availableDate } from "./workload.js";
+import { requiredRest, addDays, availableDate, daysBetween, getStatus } from "./workload.js";
 
 function todayLocal() {
     const d = new Date();
@@ -100,5 +100,78 @@ if (guidelines) {
         const result = availableDate(fakeOutings, "15-16", guidelines);
         const status = result === expected ? "PASS" : "FAIL";
         console.log(`${status}: availableDate ${name} -> ${result} (expected ${expected})`);
+    }
+}
+
+const daysBetweenTests = [
+    ["2026-10-09", "2026-10-09", 0],
+    ["2026-10-09", "2026-10-12", 3],
+    ["2026-10-30", "2026-11-02", 3],
+    ["2026-12-30", "2027-01-02", 3],
+    ["2026-10-12", "2026-10-09", 0],
+];
+
+for (const [fromStr, toStr, expected] of daysBetweenTests) {
+    const result = daysBetween(fromStr, toStr);
+    const status = result === expected ? "PASS" : "FAIL";
+    console.log(`${status}: daysBetween(${fromStr}, ${toStr}) -> ${result} (expected ${expected})`);
+}
+
+if (guidelines) {
+    const game40 = [{ date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 }];
+    const game70 = [{ date: "2026-10-09", pitchCount: 70, type: "game", effort: 5 }];
+    const gameOver = [{ date: "2026-10-09", pitchCount: 110, type: "game", effort: 5 }];
+
+    const statusTests = [
+        {
+            name: "no outings",
+            outings: [],
+            today: "2026-10-09",
+            expected: { level: "green", availableDate: null, daysShort: 0 },
+        },
+        {
+            name: "40-pitch game today",
+            outings: game40,
+            today: "2026-10-09",
+            expected: { level: "yellow", availableDate: "2026-10-11", daysShort: 2 },
+        },
+        {
+            name: "70-pitch game today",
+            outings: game70,
+            today: "2026-10-09",
+            expected: { level: "red", availableDate: "2026-10-13", daysShort: 4 },
+        },
+        {
+            name: "70-pitch checked 2 days later",
+            outings: game70,
+            today: "2026-10-11",
+            expected: { level: "yellow", availableDate: "2026-10-13", daysShort: 2 },
+        },
+        {
+            name: "checked on available date",
+            outings: game70,
+            today: "2026-10-13",
+            expected: { level: "green", availableDate: "2026-10-13", daysShort: 0 },
+        },
+        {
+            name: "over max still uses rest for level",
+            outings: gameOver,
+            today: "2026-10-09",
+            expected: { level: "red", availableDate: "2026-10-14", daysShort: 5 },
+            reasonIncludes: "over the 95 pitch max for 15-16",
+        },
+    ];
+
+    for (const { name, outings: fakeOutings, today, expected, reasonIncludes } of statusTests) {
+        const result = getStatus(fakeOutings, "15-16", guidelines, today);
+        const pass =
+            result.level === expected.level &&
+            result.availableDate === expected.availableDate &&
+            result.daysShort === expected.daysShort &&
+            (!reasonIncludes || result.reason.toLowerCase().includes(reasonIncludes));
+        const status = pass ? "PASS" : "FAIL";
+        console.log(
+            `${status}: getStatus ${name} -> ${result.level}, ${result.availableDate}, ${result.daysShort} (${result.reason})`,
+        );
     }
 }

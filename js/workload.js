@@ -1,3 +1,5 @@
+const YELLOW_THRESHOLD = 2;
+
 export function requiredRest(pitchCount, effort, ageGroup, guidelines) {
     const group = guidelines.ageGroups[ageGroup];
     if (!group || !(pitchCount > 0)) return 0;
@@ -51,4 +53,61 @@ export function availableDate(outings, ageGroup, guidelines) {
         }
     }
     return latest;
+}
+
+export function daysBetween(fromStr, toStr) {
+    if (toStr <= fromStr) return 0;
+    let current = fromStr;
+    let count = 0;
+    while (current !== toStr && count < 60) {
+        current = addDays(current, 1);
+        count += 1;
+    }
+    return count;
+}
+
+function overMaxNote(outings, ageGroup, guidelines, today) {
+    const group = guidelines.ageGroups[ageGroup];
+    if (!group) return "";
+    const days = dailyTotals(outings);
+    for (const date of Object.keys(days)) {
+        if (!(days[date].pitches > group.maxPitches)) continue;
+        const rest = requiredRest(days[date].pitches, days[date].maxEffort, ageGroup, guidelines);
+        const ready = addDays(date, rest + 1);
+        if (today < ready) {
+            return ` Over the ${group.maxPitches} pitch max for ${ageGroup}.`;
+        }
+    }
+    return "";
+}
+
+export function getStatus(outings, ageGroup, guidelines, today) {
+    const ready = availableDate(outings, ageGroup, guidelines);
+    if (ready === null) {
+        return {
+            level: "green",
+            availableDate: null,
+            daysShort: 0,
+            reason: "no recent outings",
+        };
+    }
+    if (today >= ready) {
+        return {
+            level: "green",
+            availableDate: ready,
+            daysShort: 0,
+            reason: "available to pitch",
+        };
+    }
+    const daysShort = daysBetween(today, ready);
+    const dayWord = daysShort === 1 ? "day" : "days";
+    const reason =
+        `available ${ready.slice(5)}, ${daysShort} ${dayWord} to go.` +
+        overMaxNote(outings, ageGroup, guidelines, today);
+    return {
+        level: daysShort <= YELLOW_THRESHOLD ? "yellow" : "red",
+        availableDate: ready,
+        daysShort,
+        reason,
+    };
 }
