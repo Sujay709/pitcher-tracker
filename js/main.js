@@ -1,5 +1,5 @@
 import { loadOutings, addOuting } from "./storage.js";
-import { requiredRest } from "./workload.js";
+import { requiredRest, addDays, availableDate } from "./workload.js";
 
 function todayLocal() {
     const d = new Date();
@@ -52,5 +52,53 @@ if (guidelines) {
         const result = requiredRest(pitches, effort, group, guidelines);
         const status = result === expected ? "PASS" : "FAIL";
         console.log(`${status}: ${pitches} pitches, effort ${effort}, ${group} -> ${result} (expected ${expected})`);
+    }
+}
+
+const dateTests = [
+    ["2026-10-09", 0, "2026-10-09"],
+    ["2026-10-09", 3, "2026-10-12"],
+    ["2026-10-30", 3, "2026-11-02"],
+    ["2026-12-30", 3, "2027-01-02"],
+    ["2026-03-07", 2, "2026-03-09"],
+];
+
+for (const [dateStr, n, expected] of dateTests) {
+    const result = addDays(dateStr, n);
+    const status = result === expected ? "PASS" : "FAIL";
+    console.log(`${status}: addDays(${dateStr}, ${n}) -> ${result} (expected ${expected})`);
+}
+
+if (guidelines) {
+    const availableTests = [
+        {
+            name: "no counting outings",
+            outings: [
+                { date: "2026-10-09", pitchCount: 40, type: "bullpen", effort: 4 },
+            ],
+            expected: null,
+        },
+        {
+            name: "same-day outings sum",
+            outings: [
+                { date: "2026-10-09", pitchCount: 20, type: "game", effort: 5 },
+                { date: "2026-10-09", pitchCount: 20, type: "game", effort: 7 },
+            ],
+            expected: "2026-10-11",
+        },
+        {
+            name: "latest of two days",
+            outings: [
+                { date: "2026-10-01", pitchCount: 80, type: "game", effort: 5 },
+                { date: "2026-10-09", pitchCount: 30, type: "game", effort: 5 },
+            ],
+            expected: "2026-10-10",
+        },
+    ];
+
+    for (const { name, outings: fakeOutings, expected } of availableTests) {
+        const result = availableDate(fakeOutings, "15-16", guidelines);
+        const status = result === expected ? "PASS" : "FAIL";
+        console.log(`${status}: availableDate ${name} -> ${result} (expected ${expected})`);
     }
 }
