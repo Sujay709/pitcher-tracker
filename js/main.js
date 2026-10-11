@@ -1,5 +1,6 @@
 import { loadOutings } from "./storage.js";
 import { getStatus, todayLocal } from "./workload.js";
+import { renderStatus } from "./ui.js";
 import { runTests } from "./tests.js";
 
 const RUN_TESTS = false;
@@ -19,5 +20,5 @@ if (guidelines) {
     if (RUN_TESTS) {
         runTests(guidelines);
     }
-    console.log("Status:", getStatus(loadOutings(), "15-16", guidelines, todayLocal()));
+    renderStatus(getStatus(loadOutings(), "15-16", guidelines, todayLocal()));
 }

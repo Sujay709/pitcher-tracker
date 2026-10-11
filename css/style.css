@@ -1,0 +1,19 @@
+#status {
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+#status[data-level="green"] {
+    background-color: #dff3e4;
+    color: #185c2b;
+}
+
+#status[data-level="yellow"] {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+#status[data-level="red"] {
+    background-color: #f8d7da;
+    color: #842029;
+}
