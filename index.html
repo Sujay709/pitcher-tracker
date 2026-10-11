@@ -7,6 +7,52 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <header>
+        <h1>Pitcher Workload Tracker</h1>
+        <label for="age-group">Age group</label>
+        <select id="age-group">
+            <option value="15-16" selected>15-16</option>
+            <option value="17-18">17-18</option>
+        </select>
+    </header>
+
+    <section id="status"></section>
+
+    <section>
+        <h2>Log an outing</h2>
+        <form id="outing-form">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date">
+
+            <label for="pitch-count">Pitch count</label>
+            <input id="pitch-count" name="pitch-count" type="number" min="1">
+
+            <label for="type">Type</label>
+            <select id="type" name="type">
+                <option value="game">Game</option>
+                <option value="liveBP">Live BP</option>
+                <option value="bullpen">Bullpen</option>
+                <option value="long toss">Long toss</option>
+                <option value="catch">Catch</option>
+            </select>
+
+            <label for="effort">Effort</label>
+            <input id="effort" name="effort" type="number" min="1" max="10">
+
+            <button type="submit">Log outing</button>
+            <p id="form-error"></p>
+        </form>
+    </section>
+
+    <p id="week-total"></p>
+
+    <section>
+        <h2>History</h2>
+        <ul id="history"></ul>
+    </section>
+
+    <footer>Based on Pitch Smart guidelines. Not medical advice.</footer>
+
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

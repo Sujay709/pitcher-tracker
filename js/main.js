@@ -2,7 +2,7 @@ import { loadOutings } from "./storage.js";
 import { getStatus, todayLocal } from "./workload.js";
 import { runTests } from "./tests.js";
 
-const RUN_TESTS = true;
+const RUN_TESTS = false;
 
 let guidelines;
 try {
