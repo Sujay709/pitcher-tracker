@@ -15,6 +15,66 @@ export function runTests(guidelines) {
             expected: null,
         },
         {
+            name: "date equal to today",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
+            expected: null,
+        },
+        {
+            name: "one pitch",
+            raw: { date: "2026-10-09", pitchCount: 1, type: "game", effort: 5 },
+            expected: null,
+        },
+        {
+            name: "200 pitches",
+            raw: { date: "2026-10-09", pitchCount: 200, type: "game", effort: 5 },
+            expected: null,
+        },
+        {
+            name: "201 pitches",
+            raw: { date: "2026-10-09", pitchCount: 201, type: "game", effort: 5 },
+            expected: "Pitch count must be between 1 and 200",
+        },
+        {
+            name: "fractional pitch count",
+            raw: { date: "2026-10-09", pitchCount: 40.5, type: "game", effort: 5 },
+            expected: "Pitch count must be between 1 and 200",
+        },
+        {
+            name: "NaN pitch count",
+            raw: { date: "2026-10-09", pitchCount: NaN, type: "game", effort: 5 },
+            expected: "Pitch count must be between 1 and 200",
+        },
+        {
+            name: "zero effort",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 0 },
+            expected: "Effort must be between 1 and 10",
+        },
+        {
+            name: "fractional effort",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 5.5 },
+            expected: "Effort must be between 1 and 10",
+        },
+        {
+            name: "one effort",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 1 },
+            expected: null,
+        },
+        {
+            name: "ten effort",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 10 },
+            expected: null,
+        },
+        {
+            name: "valid long toss outing",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "longToss", effort: 5 },
+            expected: null,
+        },
+        {
+            name: "long toss type with space",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "long toss", effort: 5 },
+            expected: "Type must be one of the allowed outing types",
+        },
+        {
             name: "future date",
             raw: { date: "2026-10-10", pitchCount: 40, type: "game", effort: 5 },
             expected: "Date cannot be in the future",
