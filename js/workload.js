@@ -35,6 +35,27 @@ export function todayLocal() {
     return `${d.getFullYear()}-${month}-${day}`;
 }
 
+const OUTING_TYPES = ["game", "liveBP", "bullpen", "longToss", "catch"];
+
+export function validateOuting(raw, today) {
+    if (!raw.date) return "Date is required";
+    if (raw.date > today) return "Date cannot be in the future";
+
+    if (!Number.isInteger(raw.pitchCount) || raw.pitchCount < 1 || raw.pitchCount > 200) {
+        return "Pitch count must be between 1 and 200";
+    }
+
+    if (!OUTING_TYPES.includes(raw.type)) {
+        return "Type must be one of the allowed outing types";
+    }
+
+    if (!Number.isInteger(raw.effort) || raw.effort < 1 || raw.effort > 10) {
+        return "Effort must be between 1 and 10";
+    }
+
+    return null;
+}
+
 export function dailyTotals(outings) {
     const days = {};
     for (const outing of outings) {

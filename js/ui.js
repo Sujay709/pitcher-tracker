@@ -1,3 +1,5 @@
+import { validateOuting } from "./workload.js";
+
 export function formatDate(dateStr) {
     const [year, month, day] = dateStr.split("-").map(Number);
     const date = new Date(year, month - 1, day);
@@ -5,6 +7,38 @@ export function formatDate(dateStr) {
         weekday: "short",
         month: "short",
         day: "numeric",
+    });
+}
+
+export function setupForm(today, onSubmit) {
+    const form = document.getElementById("outing-form");
+    const dateInput = document.getElementById("date");
+    const errorElement = document.getElementById("form-error");
+
+    form.noValidate = true;
+    dateInput.value = today;
+    dateInput.max = today;
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const outing = {
+            date: dateInput.value,
+            pitchCount: Number(document.getElementById("pitch-count").value),
+            type: document.getElementById("type").value,
+            effort: Number(document.getElementById("effort").value),
+        };
+        const error = validateOuting(outing, today);
+        if (error) {
+            errorElement.textContent = error;
+            return;
+        }
+
+        errorElement.textContent = "";
+        const warning = onSubmit(outing);
+        form.reset();
+        dateInput.value = today;
+        if (warning) errorElement.textContent = warning;
     });
 }
 

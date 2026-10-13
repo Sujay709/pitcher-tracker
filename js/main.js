@@ -1,6 +1,6 @@
-import { loadOutings } from "./storage.js";
+import { addOuting, loadOutings } from "./storage.js";
 import { getStatus, todayLocal } from "./workload.js";
-import { renderStatus } from "./ui.js";
+import { renderStatus, setupForm } from "./ui.js";
 import { runTests } from "./tests.js";
 
 const RUN_TESTS = false;
@@ -17,8 +17,25 @@ try {
 }
 
 if (guidelines) {
+    const ageGroup = "15-16";
+    const today = todayLocal();
+
+    function refresh() {
+        renderStatus(getStatus(loadOutings(), ageGroup, guidelines, todayLocal()));
+    }
+
     if (RUN_TESTS) {
         runTests(guidelines);
     }
-    renderStatus(getStatus(loadOutings(), "15-16", guidelines, todayLocal()));
+
+    setupForm(today, (outing) => {
+        addOuting(outing);
+        refresh();
+
+        const maxPitches = guidelines.ageGroups[ageGroup].maxPitches;
+        return outing.pitchCount > maxPitches
+            ? `Warning: this exceeds the ${maxPitches}-pitch max for the ${ageGroup} age group.`
+            : null;
+    });
+    refresh();
 }

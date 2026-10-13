@@ -1,6 +1,52 @@
-import { requiredRest, addDays, availableDate, daysBetween, getStatus } from "./workload.js";
+import {
+    requiredRest,
+    addDays,
+    availableDate,
+    daysBetween,
+    getStatus,
+    validateOuting,
+} from "./workload.js";
 
 export function runTests(guidelines) {
+    const validationTests = [
+        {
+            name: "valid outing",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
+            expected: null,
+        },
+        {
+            name: "future date",
+            raw: { date: "2026-10-10", pitchCount: 40, type: "game", effort: 5 },
+            expected: "Date cannot be in the future",
+        },
+        {
+            name: "zero pitches",
+            raw: { date: "2026-10-09", pitchCount: 0, type: "game", effort: 5 },
+            expected: "Pitch count must be between 1 and 200",
+        },
+        {
+            name: "effort above ten",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 11 },
+            expected: "Effort must be between 1 and 10",
+        },
+        {
+            name: "invalid type",
+            raw: { date: "2026-10-09", pitchCount: 40, type: "scrimmage", effort: 5 },
+            expected: "Type must be one of the allowed outing types",
+        },
+        {
+            name: "empty date",
+            raw: { date: "", pitchCount: 40, type: "game", effort: 5 },
+            expected: "Date is required",
+        },
+    ];
+
+    for (const { name, raw, expected } of validationTests) {
+        const result = validateOuting(raw, "2026-10-09");
+        const status = result === expected ? "PASS" : "FAIL";
+        console.log(`${status}: validateOuting ${name} -> ${result} (expected ${expected})`);
+    }
+
     const restTests = [
         [30, 5, "15-16", 0],
         [31, 5, "15-16", 1],
