@@ -66,3 +66,8 @@ export function renderStatus(status) {
 
     statusElement.append(headline, detail);
 }
+
+export function renderWeeklyTotal(total) {
+    const totalElement = document.getElementById("week-total");
+    totalElement.textContent = `Pitches in the last 7 days: ${total}`;
+}
