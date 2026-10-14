@@ -35,6 +35,10 @@ export function todayLocal() {
     return `${d.getFullYear()}-${month}-${day}`;
 }
 
+export function sortOutings(outings) {
+    return [...outings].reverse().sort((a, b) => b.date.localeCompare(a.date));
+}
+
 const OUTING_TYPES = ["game", "liveBP", "bullpen", "longToss", "catch"];
 
 export function validateOuting(raw, today) {

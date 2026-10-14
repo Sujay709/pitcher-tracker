@@ -4,10 +4,57 @@ import {
     availableDate,
     daysBetween,
     getStatus,
+    sortOutings,
     validateOuting,
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const sortingTests = [
+        {
+            name: "empty array",
+            outings: [],
+            expectedIds: "",
+        },
+        {
+            name: "one outing",
+            outings: [{ id: "one", date: "2026-10-09" }],
+            expectedIds: "one",
+        },
+        {
+            name: "oldest first",
+            outings: [
+                { id: "old", date: "2026-10-08" },
+                { id: "new", date: "2026-10-09" },
+            ],
+            expectedIds: "newold",
+        },
+        {
+            name: "same date keeps later-logged outing first",
+            outings: [
+                { id: "first", date: "2026-10-09" },
+                { id: "second", date: "2026-10-09" },
+            ],
+            expectedIds: "secondfirst",
+        },
+    ];
+
+    for (const { name, outings: fakeOutings, expectedIds } of sortingTests) {
+        const result = sortOutings(fakeOutings);
+        const resultIds = result.map(({ id }) => id).join("");
+        const status = resultIds === expectedIds ? "PASS" : "FAIL";
+        console.log(`${status}: sortOutings ${name} -> ${resultIds} (expected ${expectedIds})`);
+    }
+
+    const inputOrder = [
+        { id: "old", date: "2026-10-08" },
+        { id: "new", date: "2026-10-09" },
+    ];
+    sortOutings(inputOrder);
+    const inputUnchanged = inputOrder.map(({ id }) => id).join("") === "oldnew";
+    console.log(
+        `${inputUnchanged ? "PASS" : "FAIL"}: sortOutings leaves input order unchanged`,
+    );
+
     const validationTests = [
         {
             name: "valid outing",
