@@ -72,6 +72,21 @@ export function dailyTotals(outings) {
     return days;
 }
 
+export function weeklyPitchTotal(outings, today) {
+    const start = addDays(today, -6);
+    let total = 0;
+    for (const outing of outings) {
+        if (
+            outing.date >= start &&
+            outing.date <= today &&
+            countsTowardRest(outing)
+        ) {
+            total += Number(outing.pitchCount);
+        }
+    }
+    return total;
+}
+
 export function availableDate(outings, ageGroup, guidelines) {
     const days = dailyTotals(outings);
     let latest = null;

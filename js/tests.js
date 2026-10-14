@@ -6,9 +6,83 @@ import {
     getStatus,
     sortOutings,
     validateOuting,
+    weeklyPitchTotal,
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const weeklyPitchTotalTests = [
+        {
+            name: "empty outings",
+            outings: [],
+            today: "2026-11-02",
+            expected: 0,
+        },
+        {
+            name: "outing today counts",
+            outings: [{ date: "2026-11-02", pitchCount: "40", type: "game" }],
+            today: "2026-11-02",
+            expected: 40,
+        },
+        {
+            name: "six days ago counts and seven days ago does not",
+            outings: [
+                { date: "2026-10-27", pitchCount: 30, type: "game" },
+                { date: "2026-10-26", pitchCount: 20, type: "game" },
+            ],
+            today: "2026-11-02",
+            expected: 30,
+        },
+        {
+            name: "month boundary",
+            outings: [
+                { date: "2026-10-27", pitchCount: 25, type: "game" },
+                { date: "2026-10-26", pitchCount: 35, type: "game" },
+            ],
+            today: "2026-11-02",
+            expected: 25,
+        },
+        {
+            name: "future outing does not count",
+            outings: [{ date: "2026-11-03", pitchCount: 50, type: "game" }],
+            today: "2026-11-02",
+            expected: 0,
+        },
+        {
+            name: "catch and long toss are excluded",
+            outings: [
+                { date: "2026-11-02", pitchCount: 10, type: "catch" },
+                { date: "2026-11-02", pitchCount: 20, type: "longToss" },
+            ],
+            today: "2026-11-02",
+            expected: 0,
+        },
+        {
+            name: "bullpen effort threshold",
+            outings: [
+                { date: "2026-11-02", pitchCount: 15, type: "bullpen", effort: 5 },
+                { date: "2026-11-02", pitchCount: 25, type: "bullpen", effort: 6 },
+            ],
+            today: "2026-11-02",
+            expected: 25,
+        },
+        {
+            name: "several outings sum correctly",
+            outings: [
+                { date: "2026-10-27", pitchCount: "30", type: "game" },
+                { date: "2026-10-30", pitchCount: 20, type: "liveBP" },
+                { date: "2026-11-02", pitchCount: 40, type: "game" },
+            ],
+            today: "2026-11-02",
+            expected: 90,
+        },
+    ];
+
+    for (const { name, outings: fakeOutings, today, expected } of weeklyPitchTotalTests) {
+        const result = weeklyPitchTotal(fakeOutings, today);
+        const status = result === expected ? "PASS" : "FAIL";
+        console.log(`${status}: weeklyPitchTotal ${name} -> ${result} (expected ${expected})`);
+    }
+
     const sortingTests = [
         {
             name: "empty array",
