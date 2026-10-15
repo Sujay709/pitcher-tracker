@@ -1,5 +1,13 @@
 import { validateOuting } from "./workload.js";
 
+const outingTypeLabels = {
+    game: "Game",
+    liveBP: "Live BP",
+    bullpen: "Bullpen",
+    longToss: "Long toss",
+    catch: "Catch",
+};
+
 export function formatDate(dateStr) {
     const [year, month, day] = dateStr.split("-").map(Number);
     const date = new Date(year, month - 1, day);
@@ -70,4 +78,25 @@ export function renderStatus(status) {
 export function renderWeeklyTotal(total) {
     const totalElement = document.getElementById("week-total");
     totalElement.textContent = `Pitches in the last 7 days: ${total}`;
+}
+
+export function renderHistory(outings) {
+    const historyElement = document.getElementById("history");
+    historyElement.textContent = "";
+
+    if (outings.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.textContent = "No outings logged yet";
+        historyElement.append(emptyItem);
+        return;
+    }
+
+    for (const outing of outings) {
+        const item = document.createElement("li");
+        const label = outingTypeLabels[outing.type] ?? outing.type;
+        item.textContent =
+            `${formatDate(outing.date)} - ${label}, ` +
+            `${outing.pitchCount} pitches, effort ${outing.effort}`;
+        historyElement.append(item);
+    }
 }

@@ -1,6 +1,6 @@
 import { addOuting, loadOutings } from "./storage.js";
-import { getStatus, todayLocal, weeklyPitchTotal } from "./workload.js";
-import { renderStatus, renderWeeklyTotal, setupForm } from "./ui.js";
+import { getStatus, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
+import { renderHistory, renderStatus, renderWeeklyTotal, setupForm } from "./ui.js";
 import { runTests } from "./tests.js";
 
 const RUN_TESTS = false;
@@ -25,6 +25,7 @@ if (guidelines) {
         const today = todayLocal();
         renderStatus(getStatus(outings, ageGroup, guidelines, today));
         renderWeeklyTotal(weeklyPitchTotal(outings, today));
+        renderHistory(sortOutings(outings));
     }
 
     if (RUN_TESTS) {
