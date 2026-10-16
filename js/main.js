@@ -39,13 +39,26 @@ if (guidelines) {
     }
 
     setupForm(today, (outing) => {
-        addOuting(outing);
+        try {
+            addOuting(outing);
+        } catch (error) {
+            console.error("Could not save outing:", error);
+            return {
+                message: "This outing could not be saved. Please try again.",
+                saved: false,
+            };
+        }
+
         refresh();
 
         const maxPitches = guidelines.ageGroups[ageGroup].maxPitches;
-        return outing.pitchCount > maxPitches
-            ? `Warning: this exceeds the ${maxPitches}-pitch max for the ${ageGroup} age group.`
-            : null;
+        return {
+            message:
+                outing.pitchCount > maxPitches
+                    ? `Warning: this exceeds the ${maxPitches}-pitch max for the ${ageGroup} age group.`
+                    : null,
+            saved: true,
+        };
     });
     setupHistory((id) => {
         deleteOuting(id);

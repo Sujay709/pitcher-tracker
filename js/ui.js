@@ -43,10 +43,15 @@ export function setupForm(today, onSubmit) {
         }
 
         errorElement.textContent = "";
-        const warning = onSubmit(outing);
-        form.reset();
-        dateInput.value = today;
-        if (warning) errorElement.textContent = warning;
+        const result = onSubmit(outing);
+        const message = typeof result === "string" ? result : result?.message;
+        const saved =
+            result === null || typeof result !== "object" || result.saved !== false;
+        if (saved) {
+            form.reset();
+            dateInput.value = today;
+        }
+        if (message) errorElement.textContent = message;
     });
 }
 
