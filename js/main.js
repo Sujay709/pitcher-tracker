@@ -1,6 +1,12 @@
-import { addOuting, loadOutings } from "./storage.js";
+import { addOuting, deleteOuting, loadOutings } from "./storage.js";
 import { getStatus, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
-import { renderHistory, renderStatus, renderWeeklyTotal, setupForm } from "./ui.js";
+import {
+    renderHistory,
+    renderStatus,
+    renderWeeklyTotal,
+    setupForm,
+    setupHistory,
+} from "./ui.js";
 import { runTests } from "./tests.js";
 
 const RUN_TESTS = false;
@@ -40,6 +46,10 @@ if (guidelines) {
         return outing.pitchCount > maxPitches
             ? `Warning: this exceeds the ${maxPitches}-pitch max for the ${ageGroup} age group.`
             : null;
+    });
+    setupHistory((id) => {
+        deleteOuting(id);
+        refresh();
     });
     refresh();
 }

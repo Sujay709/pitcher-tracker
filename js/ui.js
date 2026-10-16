@@ -94,9 +94,29 @@ export function renderHistory(outings) {
     for (const outing of outings) {
         const item = document.createElement("li");
         const label = outingTypeLabels[outing.type] ?? outing.type;
-        item.textContent =
+        const text = document.createElement("span");
+        text.textContent =
             `${formatDate(outing.date)} - ${label}, ` +
             `${outing.pitchCount} pitches, effort ${outing.effort}`;
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.dataset.id = outing.id;
+        deleteButton.ariaLabel = `Delete ${label} outing from ${formatDate(outing.date)}`;
+        deleteButton.textContent = "Delete";
+        item.append(text, deleteButton);
         historyElement.append(item);
     }
+}
+
+export function setupHistory(onDelete) {
+    const historyElement = document.getElementById("history");
+    historyElement.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+
+        const { id } = button.dataset;
+        if (confirm("Delete this outing?")) {
+            onDelete(id);
+        }
+    });
 }
