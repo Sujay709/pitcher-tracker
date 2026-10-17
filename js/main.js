@@ -10,6 +10,7 @@ import {
     renderHistory,
     renderStatus,
     renderWeeklyTotal,
+    setupAgeGroup,
     setupForm,
     setupHistory,
 } from "./ui.js";
@@ -29,11 +30,8 @@ try {
 }
 
 if (guidelines) {
-    const ageGroupSelect = document.getElementById("age-group");
     const validGroups = Object.keys(guidelines.ageGroups);
     let ageGroup = loadAgeGroup(validGroups);
-    ageGroupSelect.value = ageGroup;
-    const today = todayLocal();
 
     function refresh() {
         const outings = loadOutings();
@@ -47,13 +45,13 @@ if (guidelines) {
         runTests(guidelines);
     }
 
-    ageGroupSelect.addEventListener("change", () => {
-        ageGroup = ageGroupSelect.value;
+    setupAgeGroup(ageGroup, (nextAgeGroup) => {
+        ageGroup = nextAgeGroup;
         saveAgeGroup(ageGroup);
         refresh();
     });
 
-    setupForm(today, (outing) => {
+    setupForm(todayLocal, (outing) => {
         try {
             addOuting(outing);
         } catch (error) {

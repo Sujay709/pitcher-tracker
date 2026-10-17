@@ -18,17 +18,31 @@ export function formatDate(dateStr) {
     });
 }
 
-export function setupForm(today, onSubmit) {
+export function setupAgeGroup(current, onChange) {
+    const ageGroupSelect = document.getElementById("age-group");
+    ageGroupSelect.value = current;
+    ageGroupSelect.addEventListener("change", () => {
+        onChange(ageGroupSelect.value);
+    });
+}
+
+export function setupForm(getToday, onSubmit) {
     const form = document.getElementById("outing-form");
     const dateInput = document.getElementById("date");
     const errorElement = document.getElementById("form-error");
 
+    function updateDateLimit() {
+        dateInput.max = getToday();
+    }
+
     form.noValidate = true;
-    dateInput.value = today;
-    dateInput.max = today;
+    dateInput.value = getToday();
+    updateDateLimit();
+    dateInput.addEventListener("focus", updateDateLimit);
 
     form.addEventListener("submit", (event) => {
         event.preventDefault();
+        const today = getToday();
 
         const outing = {
             date: dateInput.value,
@@ -49,7 +63,8 @@ export function setupForm(today, onSubmit) {
             result === null || typeof result !== "object" || result.saved !== false;
         if (saved) {
             form.reset();
-            dateInput.value = today;
+            dateInput.value = getToday();
+            updateDateLimit();
         }
         if (message) errorElement.textContent = message;
     });
