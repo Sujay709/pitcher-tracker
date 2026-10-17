@@ -1,4 +1,10 @@
-import { addOuting, deleteOuting, loadOutings } from "./storage.js";
+import {
+    addOuting,
+    deleteOuting,
+    loadAgeGroup,
+    loadOutings,
+    saveAgeGroup,
+} from "./storage.js";
 import { getStatus, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
 import {
     renderHistory,
@@ -23,7 +29,10 @@ try {
 }
 
 if (guidelines) {
-    const ageGroup = "15-16";
+    const ageGroupSelect = document.getElementById("age-group");
+    const validGroups = Object.keys(guidelines.ageGroups);
+    let ageGroup = loadAgeGroup(validGroups);
+    ageGroupSelect.value = ageGroup;
     const today = todayLocal();
 
     function refresh() {
@@ -37,6 +46,12 @@ if (guidelines) {
     if (RUN_TESTS) {
         runTests(guidelines);
     }
+
+    ageGroupSelect.addEventListener("change", () => {
+        ageGroup = ageGroupSelect.value;
+        saveAgeGroup(ageGroup);
+        refresh();
+    });
 
     setupForm(today, (outing) => {
         try {
