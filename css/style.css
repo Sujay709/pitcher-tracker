@@ -111,11 +111,12 @@ select,
 button {
     display: block;
     width: 100%;
-    min-height: 2.75rem;
+    min-height: 3rem;
     padding: var(--space-2) var(--space-3);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     font: inherit;
+    font-size: 1rem;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
@@ -128,19 +129,31 @@ select {
 
 form {
     display: grid;
-    gap: var(--space-2);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
 }
 
-form label {
-    margin-top: var(--space-2);
+.field {
+    min-width: 0;
 }
 
-form label:first-of-type {
-    margin-top: 0;
+.field-date,
+.field-type,
+#form-error,
+form button {
+    grid-column: 1 / -1;
+}
+
+.field-hint {
+    margin-top: var(--space-1);
+    color: var(--muted-text);
+    font-size: 0.875rem;
+    line-height: 1.35;
 }
 
 button {
-    margin-top: var(--space-3);
+    min-height: 3.25rem;
+    margin-top: 0;
     border-color: var(--accent);
     background: var(--accent);
     color: var(--accent-text);
@@ -246,6 +259,7 @@ button:focus-visible {
 
 #form-error {
     min-height: 1.5rem;
+    margin: 0;
     color: var(--status-red-text);
 }
 

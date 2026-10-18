@@ -24,26 +24,35 @@
     <section>
         <h2>Log an outing</h2>
         <form id="outing-form">
-            <label for="date">Date</label>
-            <input id="date" name="date" type="date">
-
-            <label for="pitch-count">Pitch count</label>
-            <input id="pitch-count" name="pitch-count" type="number" min="1">
-
-            <label for="type">Type</label>
-            <select id="type" name="type">
-                <option value="game">Game</option>
-                <option value="liveBP">Live BP</option>
-                <option value="bullpen">Bullpen</option>
-                <option value="longToss">Long toss</option>
-                <option value="catch">Catch</option>
-            </select>
-
-            <label for="effort">Effort</label>
-            <input id="effort" name="effort" type="number" min="1" max="10">
-
-            <button type="submit">Log outing</button>
+            <div class="field field-date">
+                <label for="date">Date</label>
+                <input id="date" name="date" type="date">
+            </div>
+            <div class="field field-type">
+                <label for="type">Type</label>
+                <select id="type" name="type">
+                    <option value="game">Game</option>
+                    <option value="liveBP">Live BP</option>
+                    <option value="bullpen">Bullpen</option>
+                    <option value="longToss">Long toss</option>
+                    <option value="catch">Catch</option>
+                </select>
+            </div>
+            <div class="field field-pitch-count">
+                <label for="pitch-count">Pitch count</label>
+                <input id="pitch-count" name="pitch-count" type="number" min="1"
+                    inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="field field-effort">
+                <label for="effort">Effort</label>
+                <input id="effort" name="effort" type="number" min="1" max="10"
+                    inputmode="numeric" autocomplete="off" aria-describedby="effort-hint">
+                <p id="effort-hint" class="field-hint">
+                    1 is easy, 10 is max effort. 9 or 10 adds a rest day.
+                </p>
+            </div>
             <p id="form-error" aria-live="polite"></p>
+            <button type="submit">Log outing</button>
         </form>
     </section>
 
