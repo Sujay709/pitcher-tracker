@@ -29,6 +29,19 @@ python3 -m http.server 8000
 
 Then open http://localhost:8000.
 
+## Install and export
+
+On a supported phone browser, use “Add to Home Screen” to install the tracker.
+The app includes a manifest and icons, but deliberately does not use a service
+worker or offline cache.
+
+The installed iPhone home-screen app has storage separate from Safari. Outings
+logged in Safari will not appear in the installed app, so pick one place to use
+for tracking. The app follows the device light/dark preference automatically.
+
+Use **Export data** below the history to download a JSON backup of the outings
+and their IDs. Keep that file somewhere safe if the history matters.
+
 ## How the rest logic works
 
 The app groups outings by date and only counts:
@@ -63,6 +76,8 @@ day. That is a project decision, not a Pitch Smart recommendation.
   can therefore wipe the history. See
   [WebKit’s storage policy](https://webkit.org/blog/14403/updates-to-storage-policy/)
   and [tracking-prevention notes](https://webkit.org/tracking-prevention/).
+- Exported backups are not encrypted by this app. Treat them like any other
+  personal health-related record.
 - This is guidance based on published recommendations, not medical advice.
 
 ## Disclaimer

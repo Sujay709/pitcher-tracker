@@ -1,4 +1,5 @@
 :root {
+    color-scheme: light dark;
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -11,6 +12,7 @@
         sans-serif;
     --page-background: #f4f6f8;
     --surface: #ffffff;
+    --surface-muted: #e5e7eb;
     --text: #111827;
     --muted-text: #4b5563;
     --border: #d1d5db;
@@ -383,6 +385,35 @@ button:focus-visible {
 footer {
     color: var(--muted-text);
     font-size: 0.875rem;
+}
+
+#export-data {
+    min-height: 2.75rem;
+    margin-bottom: var(--space-3);
+    background: var(--surface);
+    color: var(--accent);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --page-background: #111827;
+        --surface: #1f2937;
+        --surface-muted: #374151;
+        --text: #f9fafb;
+        --muted-text: #d1d5db;
+        --border: #4b5563;
+        --accent: #93c5fd;
+        --accent-text: #111827;
+        --status-green-surface: #123524;
+        --status-green-border: #4ade80;
+        --status-green-text: #dcfce7;
+        --status-yellow-surface: #422006;
+        --status-yellow-border: #fbbf24;
+        --status-yellow-text: #fef3c7;
+        --status-red-surface: #450a0a;
+        --status-red-border: #f87171;
+        --status-red-text: #fee2e2;
+    }
 }
 
 @media (min-width: 40rem) {

@@ -11,6 +11,7 @@ import {
     renderStatus,
     renderWeeklyTotal,
     setupAgeGroup,
+    setupExport,
     setupForm,
     setupHistory,
 } from "./ui.js";
@@ -79,5 +80,6 @@ if (guidelines) {
         deleteOuting(id);
         refresh();
     });
+    setupExport(() => loadOutings());
     refresh();
 }

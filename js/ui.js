@@ -1,4 +1,4 @@
-import { validateOuting } from "./workload.js";
+import { todayLocal, validateOuting } from "./workload.js";
 
 const outingTypeLabels = {
     game: "Game",
@@ -196,5 +196,19 @@ export function setupHistory(onDelete) {
         if (confirm("Delete this outing?")) {
             onDelete(id);
         }
+    });
+}
+
+export function setupExport(getOutings) {
+    const exportButton = document.getElementById("export-data");
+    exportButton.addEventListener("click", () => {
+        const data = JSON.stringify(getOutings(), null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `pitcher-outings-${todayLocal()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
     });
 }
