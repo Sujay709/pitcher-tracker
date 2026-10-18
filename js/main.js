@@ -57,7 +57,8 @@ if (guidelines) {
         } catch (error) {
             console.error("Could not save outing:", error);
             return {
-                message: "This outing could not be saved. Please try again.",
+                message: "Error: This outing could not be saved. Please try again.",
+                kind: "error",
                 saved: false,
             };
         }
@@ -69,7 +70,8 @@ if (guidelines) {
             message:
                 outing.pitchCount > maxPitches
                     ? `Warning: this exceeds the ${maxPitches}-pitch max for the ${ageGroup} age group.`
-                    : null,
+                    : `Logged ${outing.pitchCount} pitches.`,
+            kind: outing.pitchCount > maxPitches ? "warning" : "success",
             saved: true,
         };
     });

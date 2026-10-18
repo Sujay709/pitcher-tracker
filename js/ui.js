@@ -35,10 +35,23 @@ export function setupForm(getToday, onSubmit) {
         dateInput.max = getToday();
     }
 
+    function clearMessage() {
+        errorElement.textContent = "";
+        errorElement.removeAttribute("data-kind");
+    }
+
+    function showMessage(message, kind) {
+        errorElement.textContent = message;
+        errorElement.dataset.kind = kind;
+    }
+
     form.noValidate = true;
     dateInput.value = getToday();
     updateDateLimit();
     dateInput.addEventListener("focus", updateDateLimit);
+    form.addEventListener("input", () => {
+        if (errorElement.dataset.kind === "success") clearMessage();
+    });
 
     form.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -52,13 +65,17 @@ export function setupForm(getToday, onSubmit) {
         };
         const error = validateOuting(outing, today);
         if (error) {
-            errorElement.textContent = error;
+            showMessage(`Error: ${error}`, "error");
             return;
         }
 
-        errorElement.textContent = "";
+        clearMessage();
         const result = onSubmit(outing);
         const message = typeof result === "string" ? result : result?.message;
+        const kind =
+            result !== null && typeof result === "object"
+                ? result.kind ?? "warning"
+                : "warning";
         const saved =
             result === null || typeof result !== "object" || result.saved !== false;
         if (saved) {
@@ -66,7 +83,7 @@ export function setupForm(getToday, onSubmit) {
             dateInput.value = getToday();
             updateDateLimit();
         }
-        if (message) errorElement.textContent = message;
+        if (message) showMessage(message, kind);
     });
 }
 
