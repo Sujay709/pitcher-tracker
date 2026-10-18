@@ -361,7 +361,7 @@ footer {
 
 @media (min-width: 40rem) {
     body {
-        padding-block: var(--space-8);
+        padding: var(--space-8);
     }
 
     header,
@@ -371,5 +371,20 @@ footer {
 
     h1 {
         font-size: 1.5rem;
+    }
+
+    #status[data-level] h2 {
+        font-size: 2rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
