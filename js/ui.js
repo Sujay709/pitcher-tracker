@@ -88,8 +88,17 @@ export function renderStatus(status) {
     if (status.level === "green") {
         detail.textContent = status.reason;
     } else {
+        const days = document.createElement("strong");
+        days.className = "status-days";
+        days.textContent = status.daysShort;
+        const dayLabel = document.createElement("span");
+        dayLabel.className = "status-days-label";
         const dayWord = status.daysShort === 1 ? "day" : "days";
-        detail.textContent = `Available ${formatDate(status.availableDate)} (${status.daysShort} ${dayWord} to go)`;
+        dayLabel.textContent = `${dayWord} to go`;
+        const available = document.createElement("span");
+        available.className = "status-available";
+        available.textContent = `Available ${formatDate(status.availableDate)}`;
+        detail.append(days, dayLabel, available);
     }
 
     statusElement.append(headline, detail);

@@ -16,12 +16,15 @@
     --border: #d1d5db;
     --accent: #1d4ed8;
     --accent-text: #ffffff;
-    --status-green-surface: #dff3e4;
-    --status-green-text: #185c2b;
-    --status-yellow-surface: #fff3cd;
-    --status-yellow-text: #664d03;
-    --status-red-surface: #f8d7da;
-    --status-red-text: #842029;
+    --status-green-surface: #dcfce7;
+    --status-green-border: #16a34a;
+    --status-green-text: #14532d;
+    --status-yellow-surface: #fef3c7;
+    --status-yellow-border: #d97706;
+    --status-yellow-text: #451a03;
+    --status-red-surface: #fee2e2;
+    --status-red-border: #dc2626;
+    --status-red-text: #7f1d1d;
 }
 
 *,
@@ -162,22 +165,55 @@ button:focus-visible {
 
 #status {
     padding: var(--space-4);
-    border-radius: var(--radius-control);
+    border: 1px solid transparent;
+    border-left-width: 0.375rem;
+    border-radius: var(--radius-card);
 }
 
 #status[data-level="green"] {
     background-color: var(--status-green-surface);
+    border-left-color: var(--status-green-border);
     color: var(--status-green-text);
 }
 
 #status[data-level="yellow"] {
     background-color: var(--status-yellow-surface);
+    border-left-color: var(--status-yellow-border);
     color: var(--status-yellow-text);
 }
 
 #status[data-level="red"] {
     background-color: var(--status-red-surface);
+    border-left-color: var(--status-red-border);
     color: var(--status-red-text);
+}
+
+#status[data-level] h2 {
+    margin-bottom: var(--space-2);
+    font-size: 1.875rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+#status[data-level] p {
+    color: inherit;
+    font-size: 1rem;
+}
+
+.status-days {
+    display: inline-block;
+    margin-right: var(--space-2);
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.status-days-label {
+    font-weight: 600;
+}
+
+.status-available {
+    display: block;
+    margin-top: var(--space-2);
 }
 
 #week-total {
