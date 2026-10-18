@@ -106,7 +106,21 @@ export function renderStatus(status) {
 
 export function renderWeeklyTotal(total) {
     const totalElement = document.getElementById("week-total");
-    totalElement.textContent = `Pitches in the last 7 days: ${total}`;
+    totalElement.textContent = "";
+
+    const number = document.createElement("strong");
+    number.className = "weekly-total-number";
+    number.textContent = total;
+
+    const label = document.createElement("span");
+    label.className = "weekly-total-label";
+    label.textContent = "pitches in the last 7 days";
+
+    const note = document.createElement("span");
+    note.className = "weekly-total-note";
+    note.textContent = "Games, live BP, and effort 6+ bullpens count.";
+
+    totalElement.append(number, label, note);
 }
 
 export function renderHistory(outings) {
@@ -115,6 +129,7 @@ export function renderHistory(outings) {
 
     if (outings.length === 0) {
         const emptyItem = document.createElement("li");
+        emptyItem.className = "history-empty";
         emptyItem.textContent = "No outings logged yet";
         historyElement.append(emptyItem);
         return;
@@ -123,16 +138,33 @@ export function renderHistory(outings) {
     for (const outing of outings) {
         const item = document.createElement("li");
         const label = outingTypeLabels[outing.type] ?? outing.type;
-        const text = document.createElement("span");
-        text.textContent =
-            `${formatDate(outing.date)} - ${label}, ` +
-            `${outing.pitchCount} pitches, effort ${outing.effort}`;
+        item.className = "history-row";
+
+        const details = document.createElement("div");
+        details.className = "history-details";
+        const date = document.createElement("strong");
+        date.className = "history-date";
+        date.textContent = formatDate(outing.date);
+        const type = document.createElement("span");
+        type.className = "history-type";
+        type.textContent = label;
+        details.append(date, type);
+
+        const pitchCount = document.createElement("span");
+        pitchCount.className = "history-pitch-count";
+        pitchCount.textContent = `${outing.pitchCount} pitches`;
+
+        const effort = document.createElement("span");
+        effort.className = "history-effort";
+        effort.textContent = `Effort ${outing.effort}`;
+
         const deleteButton = document.createElement("button");
+        deleteButton.className = "history-delete";
         deleteButton.type = "button";
         deleteButton.dataset.id = outing.id;
         deleteButton.ariaLabel = `Delete ${label} outing from ${formatDate(outing.date)}`;
         deleteButton.textContent = "Delete";
-        item.append(text, deleteButton);
+        item.append(details, pitchCount, effort, deleteButton);
         historyElement.append(item);
     }
 }
