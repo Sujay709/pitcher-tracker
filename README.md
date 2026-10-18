@@ -61,8 +61,6 @@ guidelines](https://pitchsmart.com/pitch-count-guidelines). I checked the
 source on 2026-10-09; the copy used by the app is in
 [`data/guidelines.json`](data/guidelines.json).
 
-The app also adds one heuristic of its own: effort 9 or 10 adds one extra rest
-day. That is a project decision, not a Pitch Smart recommendation.
 
 ## Limitations
 
