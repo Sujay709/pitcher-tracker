@@ -169,11 +169,11 @@ button:active {
     transform: translateY(1px);
 }
 
-input:focus,
-select:focus,
+input:focus-visible,
+select:focus-visible,
 button:focus-visible {
-    outline: 0.2rem solid color-mix(in srgb, var(--accent) 30%, transparent);
-    outline-offset: 0.1rem;
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
 }
 
 #status {
