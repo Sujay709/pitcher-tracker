@@ -108,6 +108,61 @@ h2 {
     color: var(--accent);
 }
 
+.counter-section {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.counter-section h2 {
+    margin-bottom: 0;
+}
+
+.counter-display {
+    display: grid;
+    gap: var(--space-1);
+    text-align: center;
+}
+
+#count-label {
+    color: var(--muted-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+#pitch-counter {
+    color: var(--text);
+    font-size: 4rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.count-add {
+    min-height: 6rem;
+    font-size: 2.25rem;
+}
+
+.counter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.counter-actions button {
+    min-height: 2.75rem;
+}
+
+.counter-save {
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+.counter-secondary {
+    background: var(--surface);
+    color: var(--accent);
+}
+
 label {
     display: block;
     margin-bottom: var(--space-1);

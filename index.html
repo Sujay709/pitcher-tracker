@@ -30,6 +30,26 @@
         </button>
     </header>
 
+    <section class="counter-section" aria-labelledby="counter-heading">
+        <h2 id="counter-heading">Pitch counter</h2>
+        <div class="counter-display">
+            <span id="count-label">Current pitch count</span>
+            <div id="pitch-counter" aria-labelledby="count-label">0</div>
+        </div>
+        <button id="count-add" class="count-add" type="button">+1</button>
+        <div class="counter-actions">
+            <button id="count-undo" class="counter-secondary" type="button">
+                Undo
+            </button>
+            <button id="count-save" class="counter-save" type="button">
+                Save as outing
+            </button>
+            <button id="count-reset" class="counter-secondary" type="button">
+                Reset
+            </button>
+        </div>
+    </section>
+
     <section>
         <h2>Log an outing</h2>
         <form id="outing-form">
