@@ -1,5 +1,11 @@
 const YELLOW_THRESHOLD = 2;
 
+export function parseCount(raw) {
+    if (raw === null || raw === "") return 0;
+    const count = Number(raw);
+    return Number.isInteger(count) && count >= 0 && count <= 200 ? count : 0;
+}
+
 export function requiredRest(pitchCount, effort, ageGroup, guidelines) {
     const group = guidelines.ageGroups[ageGroup];
     if (!group || !(pitchCount > 0)) return 0;

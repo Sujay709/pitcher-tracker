@@ -4,12 +4,30 @@ import {
     availableDate,
     daysBetween,
     getStatus,
+    parseCount,
     sortOutings,
     validateOuting,
     weeklyPitchTotal,
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const countTests = [
+        [null, 0],
+        ["", 0],
+        ["abc", 0],
+        ["-3", 0],
+        ["12.5", 0],
+        ["250", 0],
+        ["200", 200],
+        ["0", 0],
+        ["42", 42],
+    ];
+    for (const [raw, expected] of countTests) {
+        const result = parseCount(raw);
+        const status = result === expected ? "PASS" : "FAIL";
+        console.log(`${status}: parseCount ${String(raw)} -> ${result} (expected ${expected})`);
+    }
+
     const weeklyPitchTotalTests = [
         {
             name: "empty outings",

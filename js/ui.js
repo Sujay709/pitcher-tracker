@@ -26,6 +26,43 @@ export function setupAgeGroup(current, onChange) {
     });
 }
 
+export function setupThemeToggle() {
+    const button = document.getElementById("theme-toggle");
+    const root = document.documentElement;
+    let storedTheme;
+    try {
+        storedTheme = localStorage.getItem("pitcherTracker.theme");
+    } catch (error) {
+        console.error("Could not read saved theme:", error);
+    }
+    const systemTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    const theme = storedTheme === "dark" || storedTheme === "light"
+        ? storedTheme
+        : systemTheme;
+
+    function updateButton() {
+        const isDark = root.dataset.theme === "dark";
+        button.textContent = isDark ? "Use light mode" : "Use dark mode";
+        button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+        button.setAttribute("aria-pressed", String(isDark));
+    }
+
+    root.dataset.theme = theme;
+    updateButton();
+    button.addEventListener("click", () => {
+        const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+        root.dataset.theme = nextTheme;
+        try {
+            localStorage.setItem("pitcherTracker.theme", nextTheme);
+        } catch (error) {
+            console.error("Could not save theme:", error);
+        }
+        updateButton();
+    });
+}
+
 export function setupForm(getToday, onSubmit) {
     const form = document.getElementById("outing-form");
     const dateInput = document.getElementById("date");

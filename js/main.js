@@ -14,6 +14,7 @@ import {
     setupExport,
     setupForm,
     setupHistory,
+    setupThemeToggle,
 } from "./ui.js";
 import { runTests } from "./tests.js";
 
@@ -31,6 +32,7 @@ try {
 }
 
 if (guidelines) {
+    setupThemeToggle();
     const validGroups = Object.keys(guidelines.ageGroups);
     let ageGroup = loadAgeGroup(validGroups);
 
