@@ -48,6 +48,7 @@ if (guidelines) {
 
     setupCounter(
         {
+            getCount: () => count,
             onAdd: () => {
                 count = Math.min(200, count + 1);
                 saveCount(count);
@@ -61,7 +62,9 @@ if (guidelines) {
             onSave: () => {
                 const pitchCountInput = document.getElementById("pitch-count");
                 pitchCountInput.value = String(count);
-                document.getElementById("outing-form").requestSubmit();
+                const form = document.getElementById("outing-form");
+                form.scrollIntoView({ behavior: "smooth", block: "start" });
+                document.getElementById("effort").focus();
             },
             onReset: () => {
                 if (!confirm("Reset the pitch counter?")) return;

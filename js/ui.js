@@ -67,12 +67,47 @@ export function renderCounter(count) {
     document.getElementById("pitch-counter").textContent = String(count);
 }
 
-export function setupCounter({ onAdd, onUndo, onSave, onReset }, render) {
-    document.getElementById("count-add").addEventListener("click", onAdd);
-    document.getElementById("count-undo").addEventListener("click", onUndo);
+export function setupCounter({ getCount, onAdd, onUndo, onSave, onReset }, render) {
+    let wakeLock;
+
+    async function updateWakeLock() {
+        if (!("wakeLock" in navigator)) return;
+        if (getCount() === 0 || document.visibilityState !== "visible") {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                } catch {
+                    // Wake lock is optional and may already be released by the browser.
+                }
+                wakeLock = null;
+            }
+            return;
+        }
+        if (!wakeLock || wakeLock.released) {
+            try {
+                wakeLock = await navigator.wakeLock.request("screen");
+            } catch {
+                wakeLock = null;
+            }
+        }
+    }
+
+    document.getElementById("count-add").addEventListener("click", () => {
+        onAdd();
+        updateWakeLock();
+    });
+    document.getElementById("count-undo").addEventListener("click", () => {
+        onUndo();
+        updateWakeLock();
+    });
     document.getElementById("count-save").addEventListener("click", onSave);
-    document.getElementById("count-reset").addEventListener("click", onReset);
+    document.getElementById("count-reset").addEventListener("click", () => {
+        onReset();
+        updateWakeLock();
+    });
+    document.addEventListener("visibilitychange", updateWakeLock);
     render();
+    updateWakeLock();
 }
 
 export function setupForm(getToday, onSubmit) {
