@@ -7,10 +7,64 @@ import {
     parseCount,
     sortOutings,
     validateOuting,
+    weekAvailability,
     weeklyPitchTotal,
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const weekAvailabilityTests = [
+        {
+            name: "no availability date",
+            availableDate: null,
+            today: "2026-10-18",
+            expected: [true, true, true, true, true, true, true],
+        },
+        {
+            name: "available today",
+            availableDate: "2026-10-18",
+            today: "2026-10-18",
+            expected: [true, true, true, true, true, true, true],
+        },
+        {
+            name: "available three days out",
+            availableDate: "2026-10-21",
+            today: "2026-10-18",
+            expected: [false, false, false, true, true, true, true],
+        },
+        {
+            name: "availability date in the past",
+            availableDate: "2026-10-17",
+            today: "2026-10-18",
+            expected: [true, true, true, true, true, true, true],
+        },
+        {
+            name: "availability date beyond the week",
+            availableDate: "2026-10-28",
+            today: "2026-10-18",
+            expected: [false, false, false, false, false, false, false],
+        },
+        {
+            name: "month boundary",
+            availableDate: "2026-11-02",
+            today: "2026-10-29",
+            expected: [false, false, false, false, true, true, true],
+        },
+    ];
+    for (const { name, availableDate, today, expected } of weekAvailabilityTests) {
+        const result = weekAvailability(availableDate, today);
+        const dates = result.map(({ date }) => date);
+        const availability = result.map(({ available }) => available);
+        const status =
+            JSON.stringify(availability) === JSON.stringify(expected) &&
+            dates.length === 7 &&
+            dates[0] === today
+                ? "PASS"
+                : "FAIL";
+        console.log(
+            `${status}: weekAvailability ${name} -> ${JSON.stringify(result)}`,
+        );
+    }
+
     const countTests = [
         [null, 0],
         ["", 0],

@@ -34,6 +34,17 @@ export function addDays(dateStr, n) {
     const d = String(date.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
 }
+
+export function weekAvailability(availableDate, today) {
+    return Array.from({ length: 7 }, (_, index) => {
+        const date = addDays(today, index);
+        return {
+            date,
+            available: availableDate === null || date >= availableDate,
+        };
+    });
+}
+
 export function todayLocal() {
     const d = new Date();
     const month = String(d.getMonth() + 1).padStart(2, "0");
