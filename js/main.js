@@ -1,19 +1,24 @@
 import {
     addOuting,
+    clearCount,
     deleteOuting,
     loadAgeGroup,
+    loadCount,
     loadOutings,
     saveAgeGroup,
+    saveCount,
 } from "./storage.js";
 import { getStatus, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
 import {
     renderHistory,
+    renderCounter,
     renderStatus,
     renderWeeklyTotal,
     setupAgeGroup,
     setupExport,
     setupForm,
     setupHistory,
+    setupCounter,
     setupThemeToggle,
 } from "./ui.js";
 import { runTests } from "./tests.js";
@@ -35,6 +40,38 @@ if (guidelines) {
     setupThemeToggle();
     const validGroups = Object.keys(guidelines.ageGroups);
     let ageGroup = loadAgeGroup(validGroups);
+    let count = loadCount();
+
+    function renderSavedCount() {
+        renderCounter(count);
+    }
+
+    setupCounter(
+        {
+            onAdd: () => {
+                count = Math.min(200, count + 1);
+                saveCount(count);
+                renderSavedCount();
+            },
+            onUndo: () => {
+                count = Math.max(0, count - 1);
+                saveCount(count);
+                renderSavedCount();
+            },
+            onSave: () => {
+                const pitchCountInput = document.getElementById("pitch-count");
+                pitchCountInput.value = String(count);
+                document.getElementById("outing-form").requestSubmit();
+            },
+            onReset: () => {
+                if (!confirm("Reset the pitch counter?")) return;
+                count = 0;
+                clearCount();
+                renderSavedCount();
+            },
+        },
+        renderSavedCount,
+    );
 
     function refresh() {
         const outings = loadOutings();
@@ -67,6 +104,9 @@ if (guidelines) {
         }
 
         refresh();
+        count = 0;
+        clearCount();
+        renderSavedCount();
 
         const maxPitches = guidelines.ageGroups[ageGroup].maxPitches;
         return {

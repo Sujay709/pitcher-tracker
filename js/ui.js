@@ -63,6 +63,18 @@ export function setupThemeToggle() {
     });
 }
 
+export function renderCounter(count) {
+    document.getElementById("pitch-counter").textContent = String(count);
+}
+
+export function setupCounter({ onAdd, onUndo, onSave, onReset }, render) {
+    document.getElementById("count-add").addEventListener("click", onAdd);
+    document.getElementById("count-undo").addEventListener("click", onUndo);
+    document.getElementById("count-save").addEventListener("click", onSave);
+    document.getElementById("count-reset").addEventListener("click", onReset);
+    render();
+}
+
 export function setupForm(getToday, onSubmit) {
     const form = document.getElementById("outing-form");
     const dateInput = document.getElementById("date");
