@@ -1,4 +1,5 @@
 const YELLOW_THRESHOLD = 2;
+const MAX_IMPORT_ROWS = 5000;
 
 export function parseCount(raw) {
     if (raw === null || raw === "") return 0;
@@ -75,6 +76,72 @@ export function validateOuting(raw, today) {
     }
 
     return null;
+}
+
+export function parseImport(rawJson, existingOutings, today = todayLocal()) {
+    let parsed;
+    try {
+        parsed = JSON.parse(rawJson);
+    } catch {
+        return { error: "Import must be valid JSON" };
+    }
+
+    const rows = Array.isArray(parsed) ? parsed : parsed?.outings;
+    if (!Array.isArray(rows)) {
+        return { error: "Import must be an array or an object with an outings array" };
+    }
+
+    const existingIds = new Set(
+        existingOutings
+            .map((outing) => outing.id)
+            .filter((id) => typeof id === "string" && id.length > 0),
+    );
+    const incomingIds = new Set(
+        rows
+            .map((row) => row?.id)
+            .filter((id) => typeof id === "string" && id.length > 0),
+    );
+    const imported = [];
+    let skipped = Math.max(0, rows.length - MAX_IMPORT_ROWS);
+
+    for (const [index, row] of rows.slice(0, MAX_IMPORT_ROWS).entries()) {
+        if (row === null || typeof row !== "object" || Array.isArray(row)) {
+            skipped += 1;
+            continue;
+        }
+
+        const validationError = validateOuting(row, today);
+        if (validationError) {
+            skipped += 1;
+            continue;
+        }
+
+        let id = row.id;
+        if (id !== undefined && id !== null && id !== "" && typeof id !== "string") {
+            skipped += 1;
+            continue;
+        }
+        if (typeof id === "string" && (existingIds.has(id) || imported.some((outing) => outing.id === id))) {
+            skipped += 1;
+            continue;
+        }
+        if (id === undefined || id === null || id === "") {
+            id = `import-${index + 1}`;
+            while (existingIds.has(id) || incomingIds.has(id) || imported.some((outing) => outing.id === id)) {
+                id = `${id}-1`;
+            }
+        }
+
+        imported.push({
+            id,
+            date: row.date,
+            pitchCount: row.pitchCount,
+            type: row.type,
+            effort: row.effort,
+        });
+    }
+
+    return { outings: imported, skipped };
 }
 
 export function dailyTotals(outings) {

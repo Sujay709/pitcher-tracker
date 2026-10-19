@@ -4,6 +4,7 @@ import {
     availableDate,
     daysBetween,
     getStatus,
+    parseImport,
     parseCount,
     sortOutings,
     validateOuting,
@@ -12,6 +13,82 @@ import {
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const importTests = [
+        {
+            name: "bad JSON",
+            raw: "{",
+            expectedError: true,
+        },
+        {
+            name: "non-array",
+            raw: JSON.stringify({ outing: [] }),
+            expectedError: true,
+        },
+        {
+            name: "empty array",
+            raw: "[]",
+            expected: { outings: [], skipped: 0 },
+        },
+        {
+            name: "mixed valid and invalid rows",
+            raw: JSON.stringify([
+                { id: "valid", date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
+                { id: "invalid", date: "2026-10-09", pitchCount: 0, type: "game", effort: 5 },
+            ]),
+            expected: { ids: ["valid"], skipped: 1 },
+        },
+        {
+            name: "duplicate id",
+            raw: JSON.stringify([
+                { id: "existing", date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
+            ]),
+            existing: [{ id: "existing" }],
+            expected: { outings: [], skipped: 1 },
+        },
+        {
+            name: "extra fields removed",
+            raw: JSON.stringify([
+                {
+                    id: "clean",
+                    date: "2026-10-09",
+                    pitchCount: 40,
+                    type: "game",
+                    effort: 5,
+                    malicious: true,
+                },
+            ]),
+            expected: { keys: ["id", "date", "pitchCount", "type", "effort"], skipped: 0 },
+        },
+        {
+            name: "missing id",
+            raw: JSON.stringify([
+                { date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
+            ]),
+            expected: { generatedId: true, skipped: 0 },
+        },
+        {
+            name: "wrapped outings array",
+            raw: JSON.stringify({
+                outings: [
+                    { id: "wrapped", date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
+                ],
+            }),
+            expected: { ids: ["wrapped"], skipped: 0 },
+        },
+    ];
+    for (const { name, raw, existing = [], expected, expectedError } of importTests) {
+        const result = parseImport(raw, existing, "2026-10-09");
+        const pass = expectedError
+            ? Boolean(result.error)
+            : !result.error &&
+              result.skipped === expected.skipped &&
+              (!expected.outings || JSON.stringify(result.outings) === JSON.stringify(expected.outings)) &&
+              (!expected.ids || JSON.stringify(result.outings.map(({ id }) => id)) === JSON.stringify(expected.ids)) &&
+              (!expected.keys || JSON.stringify(Object.keys(result.outings[0])) === JSON.stringify(expected.keys)) &&
+              (!expected.generatedId || result.outings[0].id.startsWith("import-"));
+        console.log(`${pass ? "PASS" : "FAIL"}: parseImport ${name}`);
+    }
+
     const weekAvailabilityTests = [
         {
             name: "no availability date",
