@@ -319,7 +319,7 @@ export function setupHistory(onDelete) {
 export function setupExport(getOutings) {
     const exportButton = document.getElementById("export-data");
     exportButton.addEventListener("click", () => {
-        const data = JSON.stringify(getOutings(), null, 2);
+        const data = JSON.stringify({ version: 1, outings: getOutings() }, null, 2);
         const blob = new Blob([data], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -327,5 +327,46 @@ export function setupExport(getOutings) {
         link.download = `pitcher-outings-${todayLocal()}.json`;
         link.click();
         URL.revokeObjectURL(url);
+    });
+}
+
+export function setupImport(onImport) {
+    const input = document.getElementById("import-data");
+    const status = document.getElementById("import-status");
+    const maxFileSize = 1024 * 1024;
+
+    function showMessage(message, kind) {
+        status.textContent = message;
+        status.dataset.kind = kind;
+    }
+
+    input.addEventListener("change", async () => {
+        const [file] = input.files;
+        if (!file) return;
+
+        try {
+            const hasJsonType = file.type === "application/json";
+            const hasJsonExtension = file.name.toLowerCase().endsWith(".json");
+            if (!hasJsonType && !hasJsonExtension) {
+                showMessage("Error: Choose a JSON file.", "error");
+                return;
+            }
+            if (file.size > maxFileSize) {
+                showMessage("Error: The JSON file must be no larger than 1 MB.", "error");
+                return;
+            }
+            if (file.size === 0) {
+                showMessage("Error: The JSON file is empty.", "error");
+                return;
+            }
+
+            const result = await onImport(await file.text());
+            showMessage(result.message, result.kind);
+        } catch (error) {
+            console.error("Could not import outings:", error);
+            showMessage("Error: This file could not be imported. Please try again.", "error");
+        } finally {
+            input.value = "";
+        }
     });
 }

@@ -40,7 +40,15 @@ logged in Safari will not appear in the installed app, so pick one place to use
 for tracking. The app follows the device light/dark preference automatically.
 
 Use **Export data** below the history to download a JSON backup of the outings
-and their IDs. Keep that file somewhere safe if the history matters.
+and their IDs. The export is wrapped as a versioned object (`version: 1`) so
+future schema changes can be handled safely. Use **Import JSON** to restore a
+backup; imports also accept older bare-array exports. Invalid rows and outings
+whose IDs already exist are skipped and summarized after import.
+
+For a backup round trip, export the data, clear this site's storage, then use
+**Import JSON** to restore it. Confirm that history, status, and weekly totals
+match the original. The import rejects corrupted, empty, non-JSON, and files
+larger than 1 MB.
 
 ## How the rest logic works
 

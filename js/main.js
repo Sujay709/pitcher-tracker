@@ -7,8 +7,9 @@ import {
     loadOutings,
     saveAgeGroup,
     saveCount,
+    saveOutings,
 } from "./storage.js";
-import { getStatus, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
+import { getStatus, parseImport, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
 import {
     renderHistory,
     renderAvailabilityStrip,
@@ -19,6 +20,7 @@ import {
     setupExport,
     setupForm,
     setupHistory,
+    setupImport,
     setupCounter,
     setupThemeToggle,
 } from "./ui.js";
@@ -129,5 +131,21 @@ if (guidelines) {
         refresh();
     });
     setupExport(() => loadOutings());
+    setupImport((rawJson) => {
+        const existingOutings = loadOutings();
+        const result = parseImport(rawJson, existingOutings, todayLocal());
+        if (result.error) {
+            return { message: `Error: ${result.error}`, kind: "error" };
+        }
+
+        saveOutings([...existingOutings, ...result.outings]);
+        refresh();
+        const importedWord = result.outings.length === 1 ? "outing" : "outings";
+        const skippedWord = result.skipped === 1 ? "row" : "rows";
+        return {
+            message: `Imported ${result.outings.length} ${importedWord}; skipped ${result.skipped} ${skippedWord}.`,
+            kind: "success",
+        };
+    });
     refresh();
 }
