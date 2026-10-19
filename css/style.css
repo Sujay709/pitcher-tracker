@@ -27,6 +27,12 @@
     --status-red-surface: #fee2e2;
     --status-red-border: #dc2626;
     --status-red-text: #7f1d1d;
+    --availability-ok-surface: #dcfce7;
+    --availability-ok-border: #16a34a;
+    --availability-ok-text: #14532d;
+    --availability-rest-surface: #fee2e2;
+    --availability-rest-border: #dc2626;
+    --availability-rest-text: #7f1d1d;
 }
 
 *,
@@ -278,6 +284,73 @@ button:focus-visible {
     font-size: 1rem;
 }
 
+.availability-section {
+    padding-block: var(--space-3);
+}
+
+.availability-section h2 {
+    margin-bottom: var(--space-3);
+}
+
+#availability-strip {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-1);
+    padding: 0;
+    list-style: none;
+}
+
+#availability-strip .availability-cell {
+    display: flex;
+    min-width: 0;
+    min-height: 44px;
+    padding: var(--space-1);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--availability-rest-border);
+    border-radius: var(--radius-control);
+    background: var(--availability-rest-surface);
+    color: var(--availability-rest-text);
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#availability-strip .availability-cell[data-available="true"] {
+    border-color: var(--availability-ok-border);
+    background: var(--availability-ok-surface);
+    color: var(--availability-ok-text);
+}
+
+#availability-strip .availability-cell.availability-today {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    font-weight: 700;
+}
+
+.availability-weekday,
+.availability-date,
+.availability-status {
+    display: block;
+}
+
+.availability-date,
+.availability-status {
+    font-variant-numeric: tabular-nums;
+}
+
+.availability-date {
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.availability-status {
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
 .status-days {
     display: inline-block;
     margin-right: var(--space-2);
@@ -476,6 +549,12 @@ footer {
         --status-red-surface: #450a0a;
         --status-red-border: #f87171;
         --status-red-text: #fee2e2;
+        --availability-ok-surface: #123524;
+        --availability-ok-border: #4ade80;
+        --availability-ok-text: #dcfce7;
+        --availability-rest-surface: #450a0a;
+        --availability-rest-border: #f87171;
+        --availability-rest-text: #fee2e2;
     }
 }
 
@@ -497,6 +576,12 @@ footer {
     --status-red-surface: #fee2e2;
     --status-red-border: #dc2626;
     --status-red-text: #7f1d1d;
+    --availability-ok-surface: #dcfce7;
+    --availability-ok-border: #16a34a;
+    --availability-ok-text: #14532d;
+    --availability-rest-surface: #fee2e2;
+    --availability-rest-border: #dc2626;
+    --availability-rest-text: #7f1d1d;
 }
 
 [data-theme="dark"] {
@@ -517,6 +602,12 @@ footer {
     --status-red-surface: #450a0a;
     --status-red-border: #f87171;
     --status-red-text: #fee2e2;
+    --availability-ok-surface: #123524;
+    --availability-ok-border: #4ade80;
+    --availability-ok-text: #dcfce7;
+    --availability-rest-surface: #450a0a;
+    --availability-rest-border: #f87171;
+    --availability-rest-text: #fee2e2;
 }
 
 @media (min-width: 40rem) {

@@ -11,6 +11,7 @@ import {
 import { getStatus, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
 import {
     renderHistory,
+    renderAvailabilityStrip,
     renderCounter,
     renderStatus,
     renderWeeklyTotal,
@@ -79,7 +80,9 @@ if (guidelines) {
     function refresh() {
         const outings = loadOutings();
         const today = todayLocal();
-        renderStatus(getStatus(outings, ageGroup, guidelines, today));
+        const status = getStatus(outings, ageGroup, guidelines, today);
+        renderStatus(status);
+        renderAvailabilityStrip(status.availableDate, today);
         renderWeeklyTotal(weeklyPitchTotal(outings, today));
         renderHistory(sortOutings(outings));
     }

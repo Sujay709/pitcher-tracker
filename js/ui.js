@@ -1,4 +1,4 @@
-import { todayLocal, validateOuting } from "./workload.js";
+import { todayLocal, validateOuting, weekAvailability } from "./workload.js";
 
 const outingTypeLabels = {
     game: "Game",
@@ -203,6 +203,39 @@ export function renderStatus(status) {
     }
 
     statusElement.append(headline, detail);
+}
+
+export function renderAvailabilityStrip(availableDate, today) {
+    const strip = document.getElementById("availability-strip");
+    strip.textContent = "";
+
+    for (const { date, available } of weekAvailability(availableDate, today)) {
+        const item = document.createElement("li");
+        item.className = "availability-cell";
+        if (date === today) item.classList.add("availability-today");
+        item.dataset.available = String(available);
+        item.ariaLabel = `${formatDate(date).replace(",", "")}, ${available ? "OK" : "rest"} day`;
+        if (date === today) item.ariaCurrent = "date";
+
+        const [year, month, day] = date.split("-").map(Number);
+        const dateValue = new Date(year, month - 1, day);
+        const weekday = document.createElement("span");
+        weekday.className = "availability-weekday";
+        weekday.textContent = dateValue.toLocaleDateString(undefined, {
+            weekday: "short",
+        });
+
+        const dateElement = document.createElement("span");
+        dateElement.className = "availability-date";
+        dateElement.textContent = String(day);
+
+        const statusElement = document.createElement("span");
+        statusElement.className = "availability-status";
+        statusElement.textContent = available ? "OK" : "Rest";
+
+        item.append(weekday, dateElement, statusElement);
+        strip.append(item);
+    }
 }
 
 export function renderWeeklyTotal(total) {
