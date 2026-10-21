@@ -1,6 +1,14 @@
 const YELLOW_THRESHOLD = 2;
 const MAX_IMPORT_ROWS = 5000;
 
+export const FEELINGS = [
+    { value: 1, label: "Fresh" },
+    { value: 2, label: "Normal" },
+    { value: 3, label: "Tired" },
+    { value: 4, label: "Sore" },
+    { value: 5, label: "Pain" },
+];
+
 export function parseCount(raw) {
     if (raw === null || raw === "") return 0;
     const count = Number(raw);
@@ -76,6 +84,28 @@ export function validateOuting(raw, today) {
     }
 
     return null;
+}
+
+export function validateCheckin(raw, today) {
+    if (!raw || !raw.date) return "Date is required";
+    if (raw.date > today) return "Date cannot be in the future";
+    if (!Number.isInteger(raw.feeling) || raw.feeling < 1 || raw.feeling > 5) {
+        return "Feeling must be an integer from 1 to 5";
+    }
+    return null;
+}
+
+export function upsertCheckin(checkins, checkin) {
+    const withoutDate = checkins.filter(({ date }) => date !== checkin.date);
+    return [...withoutDate, { ...checkin }];
+}
+
+export function latestCheckin(checkins) {
+    return checkins.reduce(
+        (latest, checkin) =>
+            latest === null || checkin.date > latest.date ? checkin : latest,
+        null,
+    );
 }
 
 export function parseImport(rawJson, existingOutings, today = todayLocal()) {

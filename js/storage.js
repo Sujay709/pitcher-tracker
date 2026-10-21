@@ -1,6 +1,7 @@
 import { parseCount } from "./workload.js";
 
 const STORAGE_KEY = "pitcherTracker.outings";
+const CHECKINS_STORAGE_KEY = "pitcherTracker.checkins";
 const AGE_GROUP_STORAGE_KEY = "pitcherTracker.ageGroup";
 const COUNT_STORAGE_KEY = "pitcherTracker.count";
 
@@ -18,6 +19,22 @@ export function loadOutings() {
 
 export function saveOutings(outings) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(outings));
+}
+
+export function loadCheckins() {
+    try {
+        const raw = localStorage.getItem(CHECKINS_STORAGE_KEY);
+        if (raw === null) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+        console.error("Could not read saved check-ins:", err);
+        return [];
+    }
+}
+
+export function saveCheckins(checkins) {
+    localStorage.setItem(CHECKINS_STORAGE_KEY, JSON.stringify(checkins));
 }
 
 export function loadAgeGroup(validGroups) {

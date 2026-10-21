@@ -4,15 +4,81 @@ import {
     availableDate,
     daysBetween,
     getStatus,
+    latestCheckin,
     parseImport,
     parseCount,
     sortOutings,
+    upsertCheckin,
+    validateCheckin,
     validateOuting,
     weekAvailability,
     weeklyPitchTotal,
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const checkinValidationTests = [
+        {
+            name: "valid",
+            raw: { date: "2026-10-20", feeling: 3 },
+            expected: null,
+        },
+        {
+            name: "future date",
+            raw: { date: "2026-10-21", feeling: 3 },
+            expected: "Date cannot be in the future",
+        },
+        {
+            name: "feeling 0",
+            raw: { date: "2026-10-20", feeling: 0 },
+            expected: "Feeling must be an integer from 1 to 5",
+        },
+        {
+            name: "feeling 6",
+            raw: { date: "2026-10-20", feeling: 6 },
+            expected: "Feeling must be an integer from 1 to 5",
+        },
+        {
+            name: "non-integer feeling",
+            raw: { date: "2026-10-20", feeling: 2.5 },
+            expected: "Feeling must be an integer from 1 to 5",
+        },
+    ];
+    for (const { name, raw, expected } of checkinValidationTests) {
+        const result = validateCheckin(raw, "2026-10-20");
+        console.log(
+            `${result === expected ? "PASS" : "FAIL"}: validateCheckin ${name} -> ${result}`,
+        );
+    }
+
+    const existingCheckin = { date: "2026-10-19", feeling: 2 };
+    const replacedCheckins = upsertCheckin(
+        [existingCheckin, { date: "2026-10-18", feeling: 1 }],
+        { date: "2026-10-19", feeling: 4 },
+    );
+    console.log(
+        `${replacedCheckins.length === 2 && replacedCheckins.find(({ date }) => date === "2026-10-19").feeling === 4 ? "PASS" : "FAIL"}: upsertCheckin replaces same date`,
+    );
+
+    const addedCheckins = upsertCheckin(
+        [existingCheckin],
+        { date: "2026-10-20", feeling: 3 },
+    );
+    console.log(
+        `${addedCheckins.length === 2 && addedCheckins.some(({ date }) => date === "2026-10-20") ? "PASS" : "FAIL"}: upsertCheckin adds new date`,
+    );
+
+    console.log(
+        `${latestCheckin([]) === null ? "PASS" : "FAIL"}: latestCheckin empty list`,
+    );
+    const latest = latestCheckin([
+        { date: "2026-10-18", feeling: 1 },
+        { date: "2026-10-20", feeling: 3 },
+        { date: "2026-10-19", feeling: 2 },
+    ]);
+    console.log(
+        `${latest?.date === "2026-10-20" ? "PASS" : "FAIL"}: latestCheckin several`,
+    );
+
     const importTests = [
         {
             name: "bad JSON",
