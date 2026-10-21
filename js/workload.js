@@ -108,6 +108,10 @@ export function latestCheckin(checkins) {
     );
 }
 
+export function checkinRestDate(checkin) {
+    return checkin?.feeling === 4 ? addDays(checkin.date, 3) : null;
+}
+
 export function parseImport(rawJson, existingOutings, today = todayLocal()) {
     let parsed;
     try {
@@ -241,8 +245,17 @@ function overMaxNote(outings, ageGroup, guidelines, today) {
     return "";
 }
 
-export function getStatus(outings, ageGroup, guidelines, today) {
-    const ready = availableDate(outings, ageGroup, guidelines);
+export function getStatus(outings, ageGroup, guidelines, today, checkin = null) {
+    const outingReady = availableDate(outings, ageGroup, guidelines);
+    const checkinReady = checkinRestDate(checkin);
+    const ready =
+        outingReady === null
+            ? checkinReady
+            : checkinReady === null
+              ? outingReady
+              : outingReady > checkinReady
+                ? outingReady
+                : checkinReady;
     if (ready === null) {
         return {
             level: "green",

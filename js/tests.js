@@ -2,6 +2,7 @@ import {
     requiredRest,
     addDays,
     availableDate,
+    checkinRestDate,
     daysBetween,
     getStatus,
     latestCheckin,
@@ -77,6 +78,12 @@ export function runTests(guidelines) {
     ]);
     console.log(
         `${latest?.date === "2026-10-20" ? "PASS" : "FAIL"}: latestCheckin several`,
+    );
+    console.log(
+        `${checkinRestDate({ date: "2026-10-20", feeling: 4 }) === "2026-10-23" ? "PASS" : "FAIL"}: checkinRestDate sore`,
+    );
+    console.log(
+        `${checkinRestDate({ date: "2026-10-20", feeling: 3 }) === null ? "PASS" : "FAIL"}: checkinRestDate non-sore`,
     );
 
     const importTests = [

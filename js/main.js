@@ -3,16 +3,27 @@ import {
     clearCount,
     deleteOuting,
     loadAgeGroup,
+    loadCheckins,
     loadCount,
     loadOutings,
     saveAgeGroup,
+    saveCheckins,
     saveCount,
     saveOutings,
 } from "./storage.js";
-import { getStatus, parseImport, sortOutings, todayLocal, weeklyPitchTotal } from "./workload.js";
+import {
+    getStatus,
+    parseImport,
+    sortOutings,
+    todayLocal,
+    latestCheckin,
+    upsertCheckin,
+    weeklyPitchTotal,
+} from "./workload.js";
 import {
     renderHistory,
     renderAvailabilityStrip,
+    renderCheckin,
     renderCounter,
     renderStatus,
     renderWeeklyTotal,
@@ -20,6 +31,7 @@ import {
     setupExport,
     setupForm,
     setupHistory,
+    setupCheckin,
     setupImport,
     setupCounter,
     setupThemeToggle,
@@ -82,9 +94,18 @@ if (guidelines) {
     function refresh() {
         const outings = loadOutings();
         const today = todayLocal();
-        const status = getStatus(outings, ageGroup, guidelines, today);
+        const checkins = loadCheckins();
+        const todayCheckin = checkins.find(({ date }) => date === today) ?? null;
+        const status = getStatus(
+            outings,
+            ageGroup,
+            guidelines,
+            today,
+            latestCheckin(checkins),
+        );
         renderStatus(status);
         renderAvailabilityStrip(status.availableDate, today);
+        renderCheckin(todayCheckin);
         renderWeeklyTotal(weeklyPitchTotal(outings, today));
         renderHistory(sortOutings(outings));
     }
@@ -129,6 +150,15 @@ if (guidelines) {
     setupHistory((id) => {
         deleteOuting(id);
         refresh();
+    });
+    setupCheckin(todayLocal, (checkin) => {
+        try {
+            saveCheckins(upsertCheckin(loadCheckins(), checkin));
+            refresh();
+            return {};
+        } catch (error) {
+            return { error };
+        }
     });
     setupExport(() => loadOutings());
     setupImport((rawJson) => {

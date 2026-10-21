@@ -1,4 +1,10 @@
-import { todayLocal, validateOuting, weekAvailability } from "./workload.js";
+import {
+    FEELINGS,
+    todayLocal,
+    validateCheckin,
+    validateOuting,
+    weekAvailability,
+} from "./workload.js";
 
 const outingTypeLabels = {
     game: "Game",
@@ -65,6 +71,70 @@ export function setupThemeToggle() {
 
 export function renderCounter(count) {
     document.getElementById("pitch-counter").textContent = String(count);
+}
+
+export function renderCheckin(checkin) {
+    const options = document.getElementById("checkin-options");
+    const message = document.getElementById("checkin-message");
+    options.textContent = "";
+    message.textContent = "";
+    message.removeAttribute("data-kind");
+
+    for (const { value, label } of FEELINGS) {
+        const input = document.createElement("input");
+        input.id = `checkin-${value}`;
+        input.name = "checkin-feeling";
+        input.type = "radio";
+        input.value = String(value);
+        input.checked = checkin?.feeling === value;
+
+        const optionLabel = document.createElement("label");
+        optionLabel.className = "checkin-option";
+        optionLabel.htmlFor = input.id;
+        optionLabel.textContent = label;
+        options.append(input, optionLabel);
+    }
+
+    if (checkin?.feeling === 5) {
+        message.className = "checkin-safety-message";
+        message.dataset.kind = "warning";
+        message.textContent =
+            "Stop throwing and tell a coach, parent, or athletic trainer. " +
+            "This app cannot diagnose anything.";
+    } else if (checkin?.feeling === 4) {
+        message.dataset.kind = "rest";
+        message.textContent = "Sore: take two extra rest days before throwing.";
+    } else if (checkin) {
+        message.textContent = `Today's check-in: ${
+            FEELINGS.find(({ value }) => value === checkin.feeling).label
+        }.`;
+    }
+}
+
+export function setupCheckin(getToday, onSubmit) {
+    const options = document.getElementById("checkin-options");
+    options.addEventListener("change", (event) => {
+        if (event.target.name !== "checkin-feeling") return;
+
+        const checkin = {
+            date: getToday(),
+            feeling: Number(event.target.value),
+        };
+        const error = validateCheckin(checkin, getToday());
+        if (error) {
+            console.error("Could not validate check-in:", error);
+            renderCheckin(null);
+            return;
+        }
+
+        const result = onSubmit(checkin);
+        if (result?.error) {
+            console.error("Could not save check-in:", result.error);
+            const message = document.getElementById("checkin-message");
+            message.dataset.kind = "error";
+            message.textContent = "Could not save today's check-in. Please try again.";
+        }
+    });
 }
 
 export function setupCounter({ getCount, onAdd, onUndo, onSave, onReset }, render) {

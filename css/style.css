@@ -351,6 +351,93 @@ button:focus-visible {
     font-weight: 800;
 }
 
+.checkin-section {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.checkin-section h2 {
+    margin-bottom: 0;
+}
+
+#checkin-options {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-2);
+    padding: 0;
+    border: 0;
+}
+
+.checkin-option {
+    display: flex;
+    min-height: 4rem;
+    margin: 0;
+    padding: var(--space-2);
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+#checkin-options input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+#checkin-options input:checked + .checkin-option {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent);
+    font-weight: 800;
+}
+
+#checkin-options input:focus-visible + .checkin-option {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+#checkin-message {
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 0.875rem;
+}
+
+#checkin-message.checkin-safety-message {
+    padding: var(--space-3);
+    border: 1px solid var(--status-red-border);
+    border-radius: var(--radius-control);
+    background: var(--status-red-surface);
+    color: var(--status-red-text);
+    font-weight: 700;
+}
+
+#checkin-message[data-kind="error"] {
+    color: var(--status-red-text);
+    font-weight: 700;
+}
+
+#checkin-message[data-kind="rest"] {
+    color: var(--status-yellow-text);
+    font-weight: 700;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .status-days {
     display: inline-block;
     margin-right: var(--space-2);
