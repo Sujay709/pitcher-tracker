@@ -4,6 +4,9 @@ const STORAGE_KEY = "pitcherTracker.outings";
 const CHECKINS_STORAGE_KEY = "pitcherTracker.checkins";
 const AGE_GROUP_STORAGE_KEY = "pitcherTracker.ageGroup";
 const COUNT_STORAGE_KEY = "pitcherTracker.count";
+const DISPLAY_NAME_STORAGE_KEY = "pitcherTracker.displayName";
+const TEAM_CODE_STORAGE_KEY = "pitcherTracker.teamCode";
+const PLAYER_ID_STORAGE_KEY = "pitcherTracker.playerId";
 
 export function loadOutings() {
     try {
@@ -66,6 +69,39 @@ export function saveCount(count) {
 
 export function clearCount() {
     localStorage.removeItem(COUNT_STORAGE_KEY);
+}
+
+export function loadProfile() {
+    try {
+        return {
+            displayName: localStorage.getItem(DISPLAY_NAME_STORAGE_KEY) ?? "",
+            teamCode: localStorage.getItem(TEAM_CODE_STORAGE_KEY) ?? "",
+            playerId: localStorage.getItem(PLAYER_ID_STORAGE_KEY) ?? "",
+        };
+    } catch (err) {
+        console.error("Could not read saved profile:", err);
+        return { displayName: "", teamCode: "", playerId: "" };
+    }
+}
+
+export function saveProfile({ displayName, teamCode }) {
+    localStorage.setItem(DISPLAY_NAME_STORAGE_KEY, displayName.trim());
+    localStorage.setItem(TEAM_CODE_STORAGE_KEY, teamCode.trim().toUpperCase());
+}
+
+export function loadOrCreatePlayerId() {
+    try {
+        const saved = localStorage.getItem(PLAYER_ID_STORAGE_KEY);
+        if (saved) return saved;
+        const playerId = globalThis.crypto?.randomUUID
+            ? globalThis.crypto.randomUUID()
+            : `player-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+        localStorage.setItem(PLAYER_ID_STORAGE_KEY, playerId);
+        return playerId;
+    } catch (err) {
+        console.error("Could not read or save player ID:", err);
+        return `player-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+    }
 }
 
 export function addOuting(outing) {

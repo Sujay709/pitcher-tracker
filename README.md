@@ -50,6 +50,21 @@ For a backup round trip, export the data, clear this site's storage, then use
 match the original. The import rejects corrupted, empty, non-JSON, and files
 larger than 1 MB.
 
+### Share with coach
+
+Enter a display name (a first name plus last initial is suggested) and your
+team code in **Share settings**, then tap **Share with coach**. The app shows a
+readable preview of the exact snapshot and its link before either **Copy link**
+or the device share sheet can be tapped. The link opens `coach.html` and stores
+the encoded snapshot after `#`; the coach page decodes it without sending
+anything back to this app.
+
+The display name, team code, and a randomly generated player ID are stored
+locally. The player ID is created once so later snapshots identify the same
+player rather than creating a duplicate. Sharing is never automatic. A
+snapshot includes arm health information, so share it only with your coach or
+team chat and get a parent or coach okay according to your team’s rules.
+
 ## How the rest logic works
 
 The app groups outings by date and only counts:

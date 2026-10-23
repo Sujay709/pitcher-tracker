@@ -400,6 +400,113 @@ export function setupExport(getOutings) {
     });
 }
 
+export function setupShare({ getSnapshot, getShareUrl, onProfileSave, profile }) {
+    const profileForm = document.getElementById("share-profile-form");
+    const nameInput = document.getElementById("display-name");
+    const teamInput = document.getElementById("team-code");
+    const openButton = document.getElementById("open-share");
+    const shareSection = document.getElementById("share-section");
+    const preview = document.getElementById("share-preview");
+    const linkInput = document.getElementById("share-link");
+    const copyButton = document.getElementById("copy-share-link");
+    const nativeShareButton = document.getElementById("native-share");
+    const status = document.getElementById("share-status");
+    nameInput.value = profile.displayName;
+    teamInput.value = profile.teamCode;
+
+    function showStatus(message, kind = "success") {
+        status.textContent = message;
+        status.dataset.kind = kind;
+    }
+
+    function renderPreview() {
+        const snapshot = getSnapshot();
+        const lastOuting = snapshot.lastOuting
+            ? `${snapshot.lastOuting.date}, ${snapshot.lastOuting.type}, ${snapshot.lastOuting.count} pitches`
+            : "None";
+        const checkin = snapshot.checkin
+            ? `${snapshot.checkin.date}, feeling ${snapshot.checkin.feeling}/5`
+            : "None";
+        preview.textContent = [
+            `Name: ${snapshot.name}`,
+            `Team: ${snapshot.teamCode}`,
+            `Player ID: ${snapshot.playerId}`,
+            `As of: ${snapshot.asOf}`,
+            `Available date: ${snapshot.availableDate ?? "Today"}`,
+            `Pitches in the last 7 days: ${snapshot.sevenDayTotal}`,
+            `Last outing: ${lastOuting}`,
+            `Latest arm check-in: ${checkin}`,
+        ].join("\n");
+        const url = getShareUrl(snapshot);
+        linkInput.value = url;
+        nativeShareButton.hidden = typeof navigator.share !== "function";
+        shareSection.hidden = false;
+        shareSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    profileForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (
+            nameInput.value.trim().length < 1 ||
+            nameInput.value.trim().length > 30 ||
+            !/^[A-Za-z0-9-]{2,12}$/.test(teamInput.value.trim())
+        ) {
+            showStatus("Enter a display name up to 30 characters and a team code using 2-12 letters, numbers, or hyphens.", "error");
+            return;
+        }
+        onProfileSave({
+            displayName: nameInput.value,
+            teamCode: teamInput.value,
+        });
+        showStatus("Settings saved.");
+    });
+
+    openButton.addEventListener("click", () => {
+        if (
+            nameInput.value.trim().length < 1 ||
+            nameInput.value.trim().length > 30 ||
+            !/^[A-Za-z0-9-]{2,12}$/.test(teamInput.value.trim())
+        ) {
+            nameInput.focus();
+            showStatus("Enter a display name up to 30 characters and a team code using 2-12 letters, numbers, or hyphens.", "error");
+            return;
+        }
+        onProfileSave({
+            displayName: nameInput.value,
+            teamCode: teamInput.value,
+        });
+        renderPreview();
+    });
+
+    copyButton.addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(linkInput.value);
+            showStatus("Link copied.");
+        } catch (error) {
+            console.error("Could not copy share link:", error);
+            showStatus("Could not copy the link. Select it and copy it manually.", "error");
+        }
+    });
+
+    nativeShareButton.addEventListener("click", async () => {
+        try {
+            await navigator.share({
+                title: "Pitcher workload snapshot",
+                text: preview.textContent,
+                url: linkInput.value,
+            });
+            showStatus("Share sheet opened.");
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.error("Could not open share sheet:", error);
+                showStatus("Could not open the share sheet. Try copying the link.", "error");
+            }
+        }
+    });
+
+    return { renderPreview };
+}
+
 export function setupImport(onImport) {
     const input = document.getElementById("import-data");
     const status = document.getElementById("import-status");

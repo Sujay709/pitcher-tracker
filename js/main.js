@@ -10,6 +10,9 @@ import {
     saveCheckins,
     saveCount,
     saveOutings,
+    loadProfile,
+    loadOrCreatePlayerId,
+    saveProfile,
 } from "./storage.js";
 import {
     getStatus,
@@ -17,6 +20,8 @@ import {
     sortOutings,
     todayLocal,
     latestCheckin,
+    buildSnapshot,
+    encodeSnapshot,
     upsertCheckin,
     weeklyPitchTotal,
 } from "./workload.js";
@@ -34,6 +39,7 @@ import {
     setupCheckin,
     setupImport,
     setupCounter,
+    setupShare,
     setupThemeToggle,
 } from "./ui.js";
 import { runTests } from "./tests.js";
@@ -56,6 +62,8 @@ if (guidelines) {
     const validGroups = Object.keys(guidelines.ageGroups);
     let ageGroup = loadAgeGroup(validGroups);
     let count = loadCount();
+    let profile = loadProfile();
+    const playerId = loadOrCreatePlayerId();
 
     function renderSavedCount() {
         renderCounter(count);
@@ -161,6 +169,26 @@ if (guidelines) {
         }
     });
     setupExport(() => loadOutings());
+    setupShare({
+        profile,
+        getSnapshot: () =>
+            buildSnapshot(
+                profile.displayName,
+                profile.teamCode,
+                playerId,
+                loadOutings(),
+                latestCheckin(loadCheckins()),
+                ageGroup,
+                guidelines,
+                todayLocal(),
+            ),
+        getShareUrl: (snapshot) =>
+            `${new URL("coach.html", window.location.href).href}#${encodeSnapshot(snapshot)}`,
+        onProfileSave: ({ displayName, teamCode }) => {
+            profile = { ...profile, displayName, teamCode };
+            saveProfile(profile);
+        },
+    });
     setupImport((rawJson) => {
         const existingOutings = loadOutings();
         const result = parseImport(rawJson, existingOutings, todayLocal());

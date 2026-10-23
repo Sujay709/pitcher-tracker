@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f6f8">
+    <title>Pitcher Workload Snapshot</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Pitcher Workload Snapshot</h1>
+    </header>
+    <section aria-labelledby="snapshot-heading">
+        <h2 id="snapshot-heading">Shared snapshot</h2>
+        <p id="snapshot-message" aria-live="polite">Loading snapshot...</p>
+        <dl id="snapshot-details" class="snapshot-details" hidden></dl>
+        <p class="share-safety-note">
+            This includes arm health info. Keep it with the coach or team chat it was
+            shared with, and follow your team’s parent or coach rules.
+        </p>
+    </section>
+    <footer>Based on Pitch Smart guidelines. Not medical advice.</footer>
+    <script type="module">
+        import { decodeSnapshot } from "./js/workload.js";
+
+        const message = document.getElementById("snapshot-message");
+        const details = document.getElementById("snapshot-details");
+        const encoded = window.location.hash.slice(1);
+        const snapshot = decodeSnapshot(encoded);
+
+        if (snapshot.error) {
+            message.textContent = "This snapshot link is missing or invalid.";
+        } else {
+            message.textContent = `Shared by ${snapshot.name} for team ${snapshot.teamCode}.`;
+            const rows = [
+                ["As of", snapshot.asOf],
+                ["Available date", snapshot.availableDate ?? "Today"],
+                ["Pitches in the last 7 days", snapshot.sevenDayTotal],
+                ["Last outing", snapshot.lastOuting
+                    ? `${snapshot.lastOuting.date}, ${snapshot.lastOuting.type}, ${snapshot.lastOuting.count} pitches`
+                    : "None"],
+                ["Latest arm check-in", snapshot.checkin
+                    ? `${snapshot.checkin.date}, feeling ${snapshot.checkin.feeling}/5`
+                    : "None"],
+            ];
+            for (const [label, value] of rows) {
+                const term = document.createElement("dt");
+                term.textContent = label;
+                const description = document.createElement("dd");
+                description.textContent = String(value);
+                details.append(term, description);
+            }
+            details.hidden = false;
+        }
+    </script>
+</body>
+</html>
