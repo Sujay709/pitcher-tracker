@@ -7,6 +7,7 @@ const COUNT_STORAGE_KEY = "pitcherTracker.count";
 const DISPLAY_NAME_STORAGE_KEY = "pitcherTracker.displayName";
 const TEAM_CODE_STORAGE_KEY = "pitcherTracker.teamCode";
 const PLAYER_ID_STORAGE_KEY = "pitcherTracker.playerId";
+const ROSTER_STORAGE_KEY = "pitcherTracker.roster";
 
 export function loadOutings() {
     try {
@@ -102,6 +103,22 @@ export function loadOrCreatePlayerId() {
         console.error("Could not read or save player ID:", err);
         return `player-${Math.random().toString(36).slice(2)}-${Date.now()}`;
     }
+}
+
+export function loadRoster() {
+    try {
+        const raw = localStorage.getItem(ROSTER_STORAGE_KEY);
+        if (raw === null) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+        console.error("Could not read saved roster:", err);
+        return [];
+    }
+}
+
+export function saveRoster(roster) {
+    localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(roster));
 }
 
 export function addOuting(outing) {

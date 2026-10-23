@@ -13,6 +13,8 @@ import {
     parseCount,
     sortOutings,
     upsertCheckin,
+    upsertPlayer,
+    removePlayer,
     validateCheckin,
     validateOuting,
     weekAvailability,
@@ -20,6 +22,50 @@ import {
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const player = (playerId, asOf, sevenDayTotal) => ({
+        playerId,
+        name: playerId,
+        teamCode: "AB-12",
+        asOf,
+        sevenDayTotal,
+    });
+    const rosterWithNewPlayer = upsertPlayer(
+        [],
+        player("player-1", "2026-10-20", 40),
+    );
+    console.log(
+        `${rosterWithNewPlayer.length === 1 && rosterWithNewPlayer[0].playerId === "player-1" ? "PASS" : "FAIL"}: roster add new`,
+    );
+    const rosterWithNewerPlayer = upsertPlayer(
+        rosterWithNewPlayer,
+        player("player-1", "2026-10-21", 60),
+    );
+    console.log(
+        `${rosterWithNewerPlayer[0].sevenDayTotal === 60 ? "PASS" : "FAIL"}: roster update newer`,
+    );
+    const rosterAfterOlderPlayer = upsertPlayer(
+        rosterWithNewerPlayer,
+        player("player-1", "2026-10-19", 20),
+    );
+    console.log(
+        `${rosterAfterOlderPlayer[0].sevenDayTotal === 60 ? "PASS" : "FAIL"}: roster ignores older`,
+    );
+    const rosterAfterSameDatePlayer = upsertPlayer(
+        rosterWithNewerPlayer,
+        player("player-1", "2026-10-21", 70),
+    );
+    console.log(
+        `${rosterAfterSameDatePlayer[0].sevenDayTotal === 70 ? "PASS" : "FAIL"}: roster replaces same date`,
+    );
+    const rosterAfterRemove = removePlayer(rosterAfterSameDatePlayer, "player-1");
+    console.log(
+        `${rosterAfterRemove.length === 0 ? "PASS" : "FAIL"}: roster remove`,
+    );
+    const rosterAfterMissingRemove = removePlayer(rosterAfterRemove, "missing");
+    console.log(
+        `${rosterAfterMissingRemove.length === 0 ? "PASS" : "FAIL"}: roster remove missing id`,
+    );
+
     const snapshotOutings = [
         { id: "one", date: "2026-10-19", pitchCount: 70, type: "game", effort: 5 },
     ];

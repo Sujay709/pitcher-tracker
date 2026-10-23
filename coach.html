@@ -22,7 +22,8 @@
     </section>
     <footer>Based on Pitch Smart guidelines. Not medical advice.</footer>
     <script type="module">
-        import { decodeSnapshot } from "./js/workload.js";
+        import { decodeSnapshot, upsertPlayer } from "./js/workload.js";
+        import { loadRoster, saveRoster } from "./js/storage.js";
 
         const message = document.getElementById("snapshot-message");
         const details = document.getElementById("snapshot-details");
@@ -32,6 +33,7 @@
         if (snapshot.error) {
             message.textContent = "This snapshot link is missing or invalid.";
         } else {
+            saveRoster(upsertPlayer(loadRoster(), snapshot));
             message.textContent = `Shared by ${snapshot.name} for team ${snapshot.teamCode}.`;
             const rows = [
                 ["As of", snapshot.asOf],

@@ -110,6 +110,24 @@ export function latestCheckin(checkins) {
     );
 }
 
+export function upsertPlayer(roster, incomingPlayer) {
+    const existingIndex = roster.findIndex(
+        ({ playerId }) => playerId === incomingPlayer.playerId,
+    );
+    if (existingIndex === -1) return [...roster, { ...incomingPlayer }];
+
+    const existingPlayer = roster[existingIndex];
+    if (incomingPlayer.asOf < existingPlayer.asOf) return [...roster];
+
+    return roster.map((player, index) =>
+        index === existingIndex ? { ...incomingPlayer } : player,
+    );
+}
+
+export function removePlayer(roster, playerId) {
+    return roster.filter((player) => player.playerId !== playerId);
+}
+
 export function checkinRestDate(checkin) {
     return checkin?.feeling === 4 ? addDays(checkin.date, 3) : null;
 }
