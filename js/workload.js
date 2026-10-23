@@ -1,5 +1,7 @@
 const YELLOW_THRESHOLD = 2;
 const MAX_IMPORT_ROWS = 5000;
+const SNAPSHOT_VERSION = 1;
+const MAX_SNAPSHOT_LENGTH = 2000;
 
 export const FEELINGS = [
     { value: 1, label: "Fresh" },
@@ -110,6 +112,189 @@ export function latestCheckin(checkins) {
 
 export function checkinRestDate(checkin) {
     return checkin?.feeling === 4 ? addDays(checkin.date, 3) : null;
+}
+
+function randomPlayerId() {
+    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+    return `player-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+}
+
+function validCalendarDate(value) {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return (
+        date.getUTCFullYear() === year &&
+        date.getUTCMonth() === month - 1 &&
+        date.getUTCDate() === day
+    );
+}
+
+function snapshotError(message) {
+    return { error: message };
+}
+
+export function buildSnapshot(
+    name,
+    teamCode,
+    playerId,
+    outings,
+    checkin,
+    ageGroup,
+    guidelines,
+    today,
+) {
+    const status = getStatus(outings, ageGroup, guidelines, today, checkin);
+    const lastOuting = sortOutings(outings)[0];
+    return {
+        version: SNAPSHOT_VERSION,
+        playerId: playerId || randomPlayerId(),
+        name: String(name).trim(),
+        teamCode: String(teamCode).trim().toUpperCase(),
+        asOf: today,
+        availableDate: status.availableDate,
+        sevenDayTotal: weeklyPitchTotal(outings, today),
+        lastOuting: lastOuting
+            ? {
+                  date: lastOuting.date,
+                  type: lastOuting.type,
+                  count: Number(lastOuting.pitchCount),
+              }
+            : null,
+        checkin: checkin
+            ? { feeling: checkin.feeling, date: checkin.date }
+            : null,
+    };
+}
+
+function encodeUtf8Base64(value) {
+    const bytes = new TextEncoder().encode(value);
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary);
+}
+
+function decodeUtf8Base64(value) {
+    const binary = atob(value);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
+
+export function encodeSnapshot(snapshot) {
+    return encodeUtf8Base64(JSON.stringify(snapshot))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+}
+
+export function decodeSnapshot(encoded) {
+    if (typeof encoded !== "string" || encoded.length === 0) {
+        return snapshotError("Snapshot is empty");
+    }
+    if (encoded.length > MAX_SNAPSHOT_LENGTH) {
+        return snapshotError("Snapshot is too large");
+    }
+    if (!/^[A-Za-z0-9_-]+$/.test(encoded)) {
+        return snapshotError("Snapshot is not valid");
+    }
+
+    let parsed;
+    try {
+        const padded = encoded.replace(/-/g, "+").replace(/_/g, "/") +
+            "=".repeat((4 - (encoded.length % 4)) % 4);
+        parsed = JSON.parse(decodeUtf8Base64(padded));
+    } catch {
+        return snapshotError("Snapshot is not valid");
+    }
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return snapshotError("Snapshot is not valid");
+    }
+    if (parsed.version !== SNAPSHOT_VERSION) {
+        return snapshotError("Unsupported snapshot version");
+    }
+    if (
+        typeof parsed.playerId !== "string" ||
+        parsed.playerId.length < 1 ||
+        parsed.playerId.length > 100
+    ) {
+        return snapshotError("Snapshot player ID is invalid");
+    }
+
+    const name = typeof parsed.name === "string" ? parsed.name.trim() : "";
+    if (name.length < 1 || name.length > 30) {
+        return snapshotError("Snapshot name must be 1 to 30 characters");
+    }
+    const teamCode = typeof parsed.teamCode === "string"
+        ? parsed.teamCode.trim().toUpperCase()
+        : "";
+    if (!/^[A-Z0-9-]{2,12}$/.test(teamCode)) {
+        return snapshotError("Snapshot team code is invalid");
+    }
+    if (!validCalendarDate(parsed.asOf)) {
+        return snapshotError("Snapshot as-of date is invalid");
+    }
+    if (parsed.availableDate !== null && !validCalendarDate(parsed.availableDate)) {
+        return snapshotError("Snapshot available date is invalid");
+    }
+    if (
+        !Number.isInteger(parsed.sevenDayTotal) ||
+        parsed.sevenDayTotal < 0 ||
+        parsed.sevenDayTotal > 1400
+    ) {
+        return snapshotError("Snapshot total is invalid");
+    }
+
+    let lastOuting = null;
+    if (parsed.lastOuting !== null) {
+        const outing = parsed.lastOuting;
+        if (
+            !outing ||
+            typeof outing !== "object" ||
+            !validCalendarDate(outing.date) ||
+            typeof outing.type !== "string" ||
+            !Number.isInteger(outing.count) ||
+            outing.count < 1 ||
+            outing.count > 200
+        ) {
+            return snapshotError("Snapshot last outing is invalid");
+        }
+        lastOuting = {
+            date: outing.date,
+            type: outing.type,
+            count: outing.count,
+        };
+    }
+
+    let cleanCheckin = null;
+    if (parsed.checkin !== null) {
+        const checkinValue = parsed.checkin;
+        if (
+            !checkinValue ||
+            !validCalendarDate(checkinValue.date) ||
+            !Number.isInteger(checkinValue.feeling) ||
+            checkinValue.feeling < 1 ||
+            checkinValue.feeling > 5
+        ) {
+            return snapshotError("Snapshot check-in is invalid");
+        }
+        cleanCheckin = {
+            feeling: checkinValue.feeling,
+            date: checkinValue.date,
+        };
+    }
+
+    return {
+        version: SNAPSHOT_VERSION,
+        playerId: parsed.playerId,
+        name,
+        teamCode,
+        asOf: parsed.asOf,
+        availableDate: parsed.availableDate,
+        sevenDayTotal: parsed.sevenDayTotal,
+        lastOuting,
+        checkin: cleanCheckin,
+    };
 }
 
 export function parseImport(rawJson, existingOutings, today = todayLocal()) {

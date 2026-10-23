@@ -3,6 +3,9 @@ import {
     addDays,
     availableDate,
     checkinRestDate,
+    buildSnapshot,
+    decodeSnapshot,
+    encodeSnapshot,
     daysBetween,
     getStatus,
     latestCheckin,
@@ -17,6 +20,67 @@ import {
 } from "./workload.js";
 
 export function runTests(guidelines) {
+    const snapshotOutings = [
+        { id: "one", date: "2026-10-19", pitchCount: 70, type: "game", effort: 5 },
+    ];
+    const snapshotCheckin = { date: "2026-10-20", feeling: 3 };
+    const snapshot = buildSnapshot(
+        "Alex",
+        "ab-12",
+        "player-test",
+        snapshotOutings,
+        snapshotCheckin,
+        "15-16",
+        guidelines,
+        "2026-10-21",
+    );
+    const encodedSnapshot = encodeSnapshot(snapshot);
+    const decodedSnapshot = decodeSnapshot(encodedSnapshot);
+    console.log(
+        `${!decodedSnapshot.error && decodedSnapshot.name === "Alex" && decodedSnapshot.teamCode === "AB-12" ? "PASS" : "FAIL"}: snapshot round trip`,
+    );
+
+    const unicodeSnapshot = buildSnapshot(
+        "José ⚾",
+        "aa-1",
+        "player-unicode",
+        [],
+        null,
+        "15-16",
+        guidelines,
+        "2026-10-21",
+    );
+    const decodedUnicode = decodeSnapshot(encodeSnapshot(unicodeSnapshot));
+    console.log(
+        `${decodedUnicode.name === "José ⚾" ? "PASS" : "FAIL"}: snapshot non-ASCII name`,
+    );
+
+    const tampered = `!${encodedSnapshot.slice(1)}`;
+    console.log(
+        `${decodeSnapshot(tampered).error ? "PASS" : "FAIL"}: snapshot tampered string`,
+    );
+    const encodeObject = (value) => encodeSnapshot(value);
+    console.log(
+        `${decodeSnapshot(encodeObject({ ...snapshot, version: 2 })).error ? "PASS" : "FAIL"}: snapshot wrong version`,
+    );
+    console.log(
+        `${decodeSnapshot(encodeObject({ ...snapshot, name: "" })).error ? "PASS" : "FAIL"}: snapshot missing name`,
+    );
+    console.log(
+        `${decodeSnapshot("A".repeat(2001)).error ? "PASS" : "FAIL"}: snapshot oversized input`,
+    );
+    console.log(
+        `${decodeSnapshot(encodeObject({ ...snapshot, asOf: "2026-02-30" })).error ? "PASS" : "FAIL"}: snapshot bad date`,
+    );
+    console.log(
+        `${decodeSnapshot(encodeObject({ ...snapshot, checkin: { date: "2026-10-20", feeling: 6 } })).error ? "PASS" : "FAIL"}: snapshot feeling out of range`,
+    );
+    const scriptName = "<script>alert(1)</script>";
+    const decodedScript = decodeSnapshot(encodeObject({ ...snapshot, name: scriptName }));
+    console.log(
+        `${decodedScript.name === scriptName ? "PASS" : "FAIL"}: snapshot script name remains text`,
+    );
+
     const checkinValidationTests = [
         {
             name: "valid",
