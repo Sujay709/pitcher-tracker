@@ -1,6 +1,9 @@
 import {
+    addDays,
+    availableOn,
     decodeSnapshot,
     groupRoster,
+    removePlayer,
     upsertPlayer,
 } from "./workload.js?coach=1";
 import {
@@ -20,6 +23,8 @@ const teamInput = document.getElementById("coach-team-code");
 const teamStatus = document.getElementById("coach-team-status");
 const snapshotInput = document.getElementById("snapshot-input");
 const rosterGroups = document.getElementById("roster-groups");
+const plannerDate = document.getElementById("planner-date");
+const plannerResults = document.getElementById("planner-results");
 let pendingSnapshot = null;
 
 function todayLocal() {
@@ -29,6 +34,82 @@ function todayLocal() {
         String(date.getMonth() + 1).padStart(2, "0"),
         String(date.getDate()).padStart(2, "0"),
     ].join("-");
+}
+
+function armFeelingLabel(feeling) {
+    return {
+        1: "Fresh",
+        2: "Normal",
+        3: "Tired",
+        4: "Sore",
+        5: "Pain",
+    }[feeling] ?? "Not reported";
+}
+
+function appendDetail(parent, label, value) {
+    const row = document.createElement("p");
+    const labelElement = document.createElement("strong");
+    labelElement.textContent = `${label}: `;
+    row.append(labelElement, document.createTextNode(String(value)));
+    parent.append(row);
+}
+
+function createPlayerCard(player, groupKey) {
+    const card = document.createElement("article");
+    card.className = "roster-card";
+
+    const heading = document.createElement("h4");
+    heading.textContent = player.name;
+    card.append(heading);
+
+    const status = document.createElement("p");
+    status.className = `roster-card-status roster-card-status-${player.status.level}`;
+    status.textContent = groupKey === "checkArmFirst"
+        ? "Check arm first"
+        : player.status.level === "green"
+          ? "Ready to pitch"
+          : player.status.level === "yellow"
+            ? `${player.status.daysShort} ${player.status.daysShort === 1 ? "day" : "days"} to go`
+            : `Resting, ${player.status.daysShort} ${player.status.daysShort === 1 ? "day" : "days"} to go`;
+    card.append(status);
+
+    appendDetail(card, "Available date", player.availableDate ?? "Today");
+    appendDetail(card, "7-day total", `${player.sevenDayTotal} pitches`);
+    appendDetail(
+        card,
+        "Last outing",
+        player.lastOuting
+            ? `${player.lastOuting.date}, ${player.lastOuting.type}, ${player.lastOuting.count} pitches`
+            : "None",
+    );
+    appendDetail(
+        card,
+        "Arm check-in",
+        player.checkin
+            ? `${armFeelingLabel(player.checkin.feeling)} (${player.checkin.date})`
+            : "Not reported",
+    );
+
+    const updated = document.createElement("span");
+    updated.className = "stale-badge";
+    if (player.staleDays >= 1) updated.classList.add("stale-badge-warning");
+    if (player.staleDays >= 2) updated.classList.add("stale-badge-old");
+    updated.textContent = `Last updated ${player.staleDays} ${
+        player.staleDays === 1 ? "day" : "days"
+    } ago`;
+    card.append(updated);
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "roster-remove";
+    removeButton.textContent = "Remove";
+    removeButton.addEventListener("click", () => {
+        if (!window.confirm(`Remove ${player.name} from the roster?`)) return;
+        saveRoster(removePlayer(loadRoster(), player.playerId));
+        renderRoster();
+    });
+    card.append(removeButton);
+    return card;
 }
 
 function showMessage(text, kind = "") {
@@ -65,6 +146,15 @@ function renderDetails(snapshot) {
 function renderRoster() {
     const groups = groupRoster(loadRoster(), todayLocal());
     rosterGroups.textContent = "";
+    const roster = Object.values(groups).flat();
+    if (roster.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent =
+            "No players yet. Ask players to use Share with coach and send you their link.";
+        rosterGroups.append(empty);
+        renderPlanner();
+        return;
+    }
     const labels = [
         ["available", "Available"],
         ["checkArmFirst", "Check arm first"],
@@ -73,28 +163,50 @@ function renderRoster() {
     for (const [key, label] of labels) {
         const heading = document.createElement("h3");
         heading.textContent = label;
-        const list = document.createElement("ul");
+        const list = document.createElement("div");
         list.className = "roster-list";
         for (const player of groups[key]) {
-            const item = document.createElement("li");
-            const name = document.createElement("strong");
-            name.textContent = player.name;
-            const status = document.createElement("span");
-            status.textContent = key === "resting"
-                ? `${player.status.daysShort} days to go`
-                : key === "checkArmFirst"
-                  ? "Check arm first"
-                  : "Ready";
-            item.append(name, status);
-            list.append(item);
+            list.append(createPlayerCard(player, key));
         }
         if (groups[key].length === 0) {
-            const empty = document.createElement("li");
+            const empty = document.createElement("p");
+            empty.className = "roster-empty";
             empty.textContent = "None";
             list.append(empty);
         }
         rosterGroups.append(heading, list);
     }
+    renderPlanner();
+}
+
+function renderPlanner() {
+    const roster = loadRoster();
+    plannerResults.textContent = "";
+    if (roster.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent =
+            "No players yet. Ask players to use Share with coach and send you their link.";
+        plannerResults.append(empty);
+        return;
+    }
+    const updatedNote = document.createElement("p");
+    updatedNote.className = "field-hint";
+    updatedNote.textContent = "Availability is based on each player's last update.";
+    plannerResults.append(updatedNote);
+    const list = document.createElement("ul");
+    list.className = "planner-list";
+    for (const player of roster.sort((a, b) => a.name.localeCompare(b.name))) {
+        const item = document.createElement("li");
+        const name = document.createElement("strong");
+        name.textContent = player.name;
+        const result = document.createElement("span");
+        const available = availableOn(player, plannerDate.value);
+        result.textContent = available ? "Available" : "Not available";
+        result.className = available ? "planner-available" : "planner-unavailable";
+        item.append(name, result);
+        list.append(item);
+    }
+    plannerResults.append(list);
 }
 
 function clearHash() {
@@ -173,6 +285,8 @@ document.getElementById("cancel-snapshot").addEventListener("click", () => {
 });
 
 teamInput.value = loadCoachTeamCode();
+plannerDate.value = addDays(todayLocal(), 1);
+plannerDate.addEventListener("change", renderPlanner);
 const initialEncoded = window.location.hash.slice(1);
 if (initialEncoded) {
     const initialSnapshot = decodeSnapshot(initialEncoded);

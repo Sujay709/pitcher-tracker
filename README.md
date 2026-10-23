@@ -65,6 +65,11 @@ player rather than creating a duplicate. Sharing is never automatic. A
 snapshot includes arm health information, so share it only with your coach or
 team chat and get a parent or coach okay according to your team’s rules.
 
+The coach page keeps a local roster, grouped by readiness and arm concerns. It
+also has a lineup planner for a selected date. Player cards show the snapshot
+age, so older updates are easy to spot; no roster data leaves the coach’s
+browser.
+
 ## How the rest logic works
 
 The app groups outings by date and only counts:

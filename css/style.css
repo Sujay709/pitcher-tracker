@@ -256,12 +256,83 @@ form {
 
 .roster-list {
     display: grid;
+    gap: var(--space-3);
+}
+
+.roster-card {
+    position: relative;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+}
+
+.roster-card h4 {
+    margin: 0 0 var(--space-1);
+    font-size: 1.125rem;
+}
+
+.roster-card p {
+    margin: var(--space-1) 0;
+}
+
+.roster-card-status {
+    font-weight: 700;
+}
+
+.roster-card-status-green {
+    color: var(--status-green-text);
+}
+
+.roster-card-status-yellow,
+.roster-card-status-red {
+    color: var(--status-yellow-text);
+}
+
+.stale-badge {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: 999px;
+    background: var(--surface-muted);
+    color: var(--muted-text);
+    font-size: 0.8125rem;
+}
+
+.stale-badge-warning {
+    background: var(--status-yellow-surface);
+    color: var(--status-yellow-text);
+}
+
+.stale-badge-old {
+    background: var(--status-red-surface);
+    color: var(--status-red-text);
+}
+
+.roster-remove {
+    float: right;
+    width: auto;
+    min-height: 2.5rem;
+    margin-top: var(--space-2);
+    padding: var(--space-2);
+    border: 0;
+    background: transparent;
+    color: var(--status-red-text);
+    font-size: 0.875rem;
+}
+
+.roster-empty {
+    color: var(--muted-text);
+}
+
+.planner-list {
+    display: grid;
     gap: var(--space-2);
     padding: 0;
     list-style: none;
 }
 
-.roster-list li {
+.planner-list li {
     display: flex;
     justify-content: space-between;
     gap: var(--space-3);
@@ -269,8 +340,14 @@ form {
     border-bottom: 1px solid var(--border);
 }
 
-.roster-list span {
-    color: var(--muted-text);
+.planner-available {
+    color: var(--status-green-text);
+    font-weight: 700;
+}
+
+.planner-unavailable {
+    color: var(--status-red-text);
+    font-weight: 700;
 }
 
 #roster-groups h3 {
