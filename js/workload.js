@@ -128,6 +128,59 @@ export function removePlayer(roster, playerId) {
     return roster.filter((player) => player.playerId !== playerId);
 }
 
+export function availableOn(snapshot, date) {
+    return snapshot.availableDate === null || snapshot.availableDate <= date;
+}
+
+export function rosterStatus(snapshot, today) {
+    const daysShort =
+        snapshot.availableDate === null
+            ? 0
+            : daysBetween(today, snapshot.availableDate);
+    const available = availableOn(snapshot, today);
+    return {
+        level: available
+            ? "green"
+            : daysShort <= YELLOW_THRESHOLD
+              ? "yellow"
+              : "red",
+        daysShort,
+    };
+}
+
+export function staleDays(snapshot, today) {
+    return daysBetween(snapshot.asOf, today);
+}
+
+export function groupRoster(roster, today) {
+    const available = [];
+    const checkArmFirst = [];
+    const resting = [];
+
+    for (const snapshot of roster) {
+        const status = rosterStatus(snapshot, today);
+        const hasArmConcern =
+            snapshot.checkin?.feeling === 4 || snapshot.checkin?.feeling === 5;
+        const player = { ...snapshot, status, staleDays: staleDays(snapshot, today) };
+
+        if (hasArmConcern) {
+            checkArmFirst.push(player);
+        } else if (status.level === "green") {
+            available.push(player);
+        } else {
+            resting.push(player);
+        }
+    }
+
+    resting.sort(
+        (a, b) =>
+            a.status.daysShort - b.status.daysShort ||
+            a.name.localeCompare(b.name),
+    );
+
+    return { available, checkArmFirst, resting };
+}
+
 export function checkinRestDate(checkin) {
     return checkin?.feeling === 4 ? addDays(checkin.date, 3) : null;
 }

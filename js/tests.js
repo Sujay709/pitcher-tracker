@@ -15,6 +15,10 @@ import {
     upsertCheckin,
     upsertPlayer,
     removePlayer,
+    availableOn,
+    rosterStatus,
+    staleDays,
+    groupRoster,
     validateCheckin,
     validateOuting,
     weekAvailability,
@@ -64,6 +68,82 @@ export function runTests(guidelines) {
     const rosterAfterMissingRemove = removePlayer(rosterAfterRemove, "missing");
     console.log(
         `${rosterAfterMissingRemove.length === 0 ? "PASS" : "FAIL"}: roster remove missing id`,
+    );
+
+    const readinessSnapshot = (overrides = {}) => ({
+        playerId: "readiness-player",
+        name: "Readiness Player",
+        teamCode: "AB-12",
+        asOf: "2026-03-28",
+        availableDate: "2026-04-02",
+        checkin: null,
+        ...overrides,
+    });
+    console.log(
+        `${availableOn(readinessSnapshot({ availableDate: null }), "2026-03-28") &&
+        availableOn(readinessSnapshot({ availableDate: "2026-04-01" }), "2026-04-02") &&
+        !availableOn(readinessSnapshot({ availableDate: "2026-04-03" }), "2026-04-02")
+            ? "PASS"
+            : "FAIL"}: availableOn null and date boundary`,
+    );
+    const readyStatus = rosterStatus(
+        readinessSnapshot({ availableDate: "2026-04-01" }),
+        "2026-04-02",
+    );
+    const restingStatus = rosterStatus(
+        readinessSnapshot({ availableDate: "2026-04-05" }),
+        "2026-04-02",
+    );
+    console.log(
+        `${readyStatus.level === "green" && readyStatus.daysShort === 0 &&
+        restingStatus.level === "red" && restingStatus.daysShort === 3
+            ? "PASS"
+            : "FAIL"}: rosterStatus levels and days`,
+    );
+    console.log(
+        `${staleDays(readinessSnapshot({ asOf: "2026-02-28" }), "2026-03-02") === 2 &&
+        staleDays(readinessSnapshot({ asOf: "2026-03-31" }), "2026-04-02") === 2
+            ? "PASS"
+            : "FAIL"}: staleDays month boundaries`,
+    );
+    const grouped = groupRoster(
+        [
+            readinessSnapshot({
+                playerId: "available",
+                name: "Zoe",
+                availableDate: null,
+            }),
+            readinessSnapshot({
+                playerId: "sore",
+                name: "Amy",
+                availableDate: "2026-04-01",
+                checkin: { date: "2026-04-02", feeling: 4 },
+            }),
+            readinessSnapshot({
+                playerId: "resting-late",
+                name: "Zane",
+                availableDate: "2026-04-05",
+            }),
+            readinessSnapshot({
+                playerId: "resting-early",
+                name: "Aaron",
+                availableDate: "2026-04-03",
+            }),
+            readinessSnapshot({
+                playerId: "pain",
+                name: "Ben",
+                availableDate: "2026-04-01",
+                checkin: { date: "2026-04-02", feeling: 5 },
+            }),
+        ],
+        "2026-04-02",
+    );
+    console.log(
+        `${grouped.available.map(({ playerId }) => playerId).join(",") === "available" &&
+        grouped.checkArmFirst.map(({ playerId }) => playerId).join(",") === "sore,pain" &&
+        grouped.resting.map(({ playerId }) => playerId).join(",") === "resting-early,resting-late"
+            ? "PASS"
+            : "FAIL"}: groupRoster ordering and arm safety`,
     );
 
     const snapshotOutings = [
