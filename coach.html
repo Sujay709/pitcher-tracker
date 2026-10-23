@@ -15,46 +15,41 @@
         <h2 id="snapshot-heading">Shared snapshot</h2>
         <p id="snapshot-message" aria-live="polite">Loading snapshot...</p>
         <dl id="snapshot-details" class="snapshot-details" hidden></dl>
+        <div id="snapshot-confirm" hidden>
+            <p id="snapshot-confirmation"></p>
+            <p id="team-warning" class="share-safety-note" hidden></p>
+            <div class="share-actions">
+                <button id="add-snapshot" type="button">Add to roster</button>
+                <button id="cancel-snapshot" class="counter-secondary" type="button">Cancel</button>
+            </div>
+        </div>
         <p class="share-safety-note">
             This includes arm health info. Keep it with the coach or team chat it was
             shared with, and follow your team’s parent or coach rules.
         </p>
     </section>
+    <section aria-labelledby="team-heading">
+        <h2 id="team-heading">Coach team</h2>
+        <form id="coach-team-form">
+            <label for="coach-team-code">Your team code</label>
+            <input id="coach-team-code" type="text" maxlength="12"
+                autocapitalize="characters" placeholder="For example, AB-12">
+            <button type="submit">Save team code</button>
+        </form>
+        <p id="coach-team-status" aria-live="polite"></p>
+    </section>
+    <section aria-labelledby="paste-heading">
+        <h2 id="paste-heading">Paste a shared link</h2>
+        <label for="snapshot-input">Full link or raw snapshot code</label>
+        <textarea id="snapshot-input" rows="4"
+            placeholder="Paste a coach link or the code after #"></textarea>
+        <button id="load-snapshot" type="button">Preview snapshot</button>
+    </section>
+    <section aria-labelledby="roster-heading">
+        <h2 id="roster-heading">Roster</h2>
+        <div id="roster-groups"></div>
+    </section>
     <footer>Based on Pitch Smart guidelines. Not medical advice.</footer>
-    <script type="module">
-        import { decodeSnapshot, upsertPlayer } from "./js/workload.js";
-        import { loadRoster, saveRoster } from "./js/storage.js";
-
-        const message = document.getElementById("snapshot-message");
-        const details = document.getElementById("snapshot-details");
-        const encoded = window.location.hash.slice(1);
-        const snapshot = decodeSnapshot(encoded);
-
-        if (snapshot.error) {
-            message.textContent = "This snapshot link is missing or invalid.";
-        } else {
-            saveRoster(upsertPlayer(loadRoster(), snapshot));
-            message.textContent = `Shared by ${snapshot.name} for team ${snapshot.teamCode}.`;
-            const rows = [
-                ["As of", snapshot.asOf],
-                ["Available date", snapshot.availableDate ?? "Today"],
-                ["Pitches in the last 7 days", snapshot.sevenDayTotal],
-                ["Last outing", snapshot.lastOuting
-                    ? `${snapshot.lastOuting.date}, ${snapshot.lastOuting.type}, ${snapshot.lastOuting.count} pitches`
-                    : "None"],
-                ["Latest arm check-in", snapshot.checkin
-                    ? `${snapshot.checkin.date}, feeling ${snapshot.checkin.feeling}/5`
-                    : "None"],
-            ];
-            for (const [label, value] of rows) {
-                const term = document.createElement("dt");
-                term.textContent = label;
-                const description = document.createElement("dd");
-                description.textContent = String(value);
-                details.append(term, description);
-            }
-            details.hidden = false;
-        }
-    </script>
+    <script type="module" src="js/coach.js"></script>
 </body>
 </html>

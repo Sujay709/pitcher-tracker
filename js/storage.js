@@ -8,6 +8,7 @@ const DISPLAY_NAME_STORAGE_KEY = "pitcherTracker.displayName";
 const TEAM_CODE_STORAGE_KEY = "pitcherTracker.teamCode";
 const PLAYER_ID_STORAGE_KEY = "pitcherTracker.playerId";
 const ROSTER_STORAGE_KEY = "pitcherTracker.roster";
+const COACH_TEAM_CODE_STORAGE_KEY = "pitcherTracker.coachTeamCode";
 
 export function loadOutings() {
     try {
@@ -119,6 +120,19 @@ export function loadRoster() {
 
 export function saveRoster(roster) {
     localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(roster));
+}
+
+export function loadCoachTeamCode() {
+    try {
+        return localStorage.getItem(COACH_TEAM_CODE_STORAGE_KEY) ?? "";
+    } catch (err) {
+        console.error("Could not read saved coach team code:", err);
+        return "";
+    }
+}
+
+export function saveCoachTeamCode(teamCode) {
+    localStorage.setItem(COACH_TEAM_CODE_STORAGE_KEY, teamCode.trim().toUpperCase());
 }
 
 export function addOuting(outing) {

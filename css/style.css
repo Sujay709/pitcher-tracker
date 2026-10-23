@@ -254,6 +254,33 @@ form {
     gap: var(--space-2) var(--space-4);
 }
 
+.roster-list {
+    display: grid;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+}
+
+.roster-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.roster-list span {
+    color: var(--muted-text);
+}
+
+#roster-groups h3 {
+    margin: var(--space-4) 0 var(--space-2);
+}
+
+#roster-groups h3:first-child {
+    margin-top: 0;
+}
+
 .snapshot-details dt {
     color: var(--muted-text);
     font-weight: 700;
