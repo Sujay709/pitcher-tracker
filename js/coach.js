@@ -161,18 +161,27 @@ function renderRoster() {
         ["resting", "Resting"],
     ];
     for (const [key, label] of labels) {
+        const group = groups[key];
+        if (!group || group.length === 0) {
+            if (groups[key] && groups[key].length === 0) {
+                const heading = document.createElement("h3");
+                heading.textContent = label;
+                const list = document.createElement("div");
+                list.className = "roster-list";
+                const empty = document.createElement("p");
+                empty.className = "roster-empty";
+                empty.textContent = "None";
+                list.append(empty);
+                rosterGroups.append(heading, list);
+            }
+            continue;
+        }
         const heading = document.createElement("h3");
-        heading.textContent = label;
+        heading.textContent = `${label} (${group.length})`;
         const list = document.createElement("div");
         list.className = "roster-list";
-        for (const player of groups[key]) {
+        for (const player of group) {
             list.append(createPlayerCard(player, key));
-        }
-        if (groups[key].length === 0) {
-            const empty = document.createElement("p");
-            empty.className = "roster-empty";
-            empty.textContent = "None";
-            list.append(empty);
         }
         rosterGroups.append(heading, list);
     }
