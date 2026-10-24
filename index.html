@@ -30,7 +30,7 @@
                     <li>Check your status card before you pitch. It tells you in words if you’re good to go and the date you’re available.</li>
                     <li>Tap Share with coach to send your status to your team chat.</li>
                 </ol>
-                <a href="player.html">Open player app</a>
+                <a href="player.html" data-role="player">Open player app</a>
             </section>
             <section id="coach">
                 <h3>I’m a coach</h3>
@@ -41,9 +41,13 @@
                     <li>Open each link and confirm to add the player to your board.</li>
                     <li>Use the board and the planner. Check each card’s “updated” label before you decide.</li>
                 </ol>
-                <a href="coach.html">Open coach board</a>
+                <a href="coach.html" data-role="coach">Open coach board</a>
             </section>
         </section>
+        <label class="remember-choice" for="remember-choice">
+            <input id="remember-choice" type="checkbox" autocomplete="off">
+            <span>Remember my choice on this device</span>
+        </label>
         <section>
             <h2>Good to know</h2>
             <ul>
@@ -61,5 +65,6 @@
     <footer>
         <p>Based on Pitch Smart guidelines. Not medical advice.</p>
     </footer>
+    <script type="module" src="js/landing.js"></script>
 </body>
 </html>
