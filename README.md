@@ -21,7 +21,7 @@ The screenshots below are phone-sized captures from the app.
 ## Run it locally
 
 This is a static site, but it uses ES modules and `fetch`, so open it through a
-local HTTP server rather than double-clicking `index.html`.
+local HTTP server rather than double-clicking `player.html`.
 
 ```sh
 python3 -m http.server 8000
