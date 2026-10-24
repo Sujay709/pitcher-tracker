@@ -24,8 +24,26 @@ import {
     weekAvailability,
     weeklyPitchTotal,
 } from "./workload.js";
+import { getLandingRedirect } from "./landing.js";
 
 export function runTests(guidelines) {
+    const routeTests = [
+        ["player role", "player", "", "player.html"],
+        ["coach role", "coach", "", "coach.html"],
+        ["missing role", null, "", null],
+        ["junk role", "banana", "", null],
+        ["empty role", "", "", null],
+        ["player chooses role", "player", "?choose=1", null],
+        ["coach chooses role", "coach", "?choose=1", null],
+        ["unrelated query", "player", "?x=1", "player.html"],
+    ];
+    for (const [name, storedRole, queryString, expected] of routeTests) {
+        const result = getLandingRedirect(storedRole, queryString);
+        console.log(
+            `${result === expected ? "PASS" : "FAIL"}: landing route ${name} -> ${result}`,
+        );
+    }
+
     const player = (playerId, asOf, sevenDayTotal) => ({
         playerId,
         name: playerId,
