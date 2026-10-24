@@ -33,24 +33,6 @@
     --availability-ok-text: #14532d;
     --availability-rest-surface: #fee2e2;
     --availability-rest-border: #dc2626;
-.app-link {
-    display: inline-block;
-    padding: 0.75rem 1.25rem;
-    background: var(--accent);
-    color: var(--accent-text);
-    text-decoration: none;
-    border-radius: var(--radius-control);
-    font-weight: 700;
-}
-
-.app-link:hover {
-    filter: brightness(0.9);
-}
-
-.app-link:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 2px;
-}
 }
 
 *,
@@ -901,21 +883,6 @@ footer {
         --availability-rest-border: #f87171;
         --availability-rest-text: #fee2e2;
     }
-.roster-list-available {
-    border-left: 4px solid var(--status-green-border);
-    padding-left: var(--space-3);
-    background: var(--status-green-surface);
-}
-.roster-list-checkArmFirst {
-    border-left: 4px solid var(--status-yellow-border);
-    padding-left: var(--space-3);
-    background: var(--status-yellow-surface);
-}
-.roster-list-resting {
-    border-left: 4px solid var(--status-red-border);
-    padding-left: var(--space-3);
-    background: var(--status-red-surface);
-}
 }
 
 [data-theme="light"] {
@@ -942,24 +909,6 @@ footer {
     --availability-ok-text: #14532d;
     --availability-rest-surface: #fee2e2;
     --availability-rest-border: #dc2626;
-.app-link {
-    display: inline-block;
-    padding: 0.75rem 1.25rem;
-    background: var(--accent);
-    color: var(--accent-text);
-    text-decoration: none;
-    border-radius: var(--radius-control);
-    font-weight: 700;
-}
-
-.app-link:hover {
-    filter: brightness(0.9);
-}
-
-.app-link:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 2px;
-}
 }
 
 [data-theme="dark"] {
@@ -992,79 +941,19 @@ footer {
     body {
         padding: var(--space-8);
     }
-.roster-list-available {
-    border-left: 4px solid var(--status-green-border);
-    padding-left: var(--space-3);
-    background: var(--status-green-surface);
-}
-.roster-list-checkArmFirst {
-    border-left: 4px solid var(--status-yellow-border);
-    padding-left: var(--space-3);
-    background: var(--status-yellow-surface);
-}
-.roster-list-resting {
-    border-left: 4px solid var(--status-red-border);
-    padding-left: var(--space-3);
-    background: var(--status-red-surface);
-}
 
     header,
     section {
         padding: var(--space-6);
     }
-.roster-list-available {
-    border-left: 4px solid var(--status-green-border);
-    padding-left: var(--space-3);
-    background: var(--status-green-surface);
-}
-.roster-list-checkArmFirst {
-    border-left: 4px solid var(--status-yellow-border);
-    padding-left: var(--space-3);
-    background: var(--status-yellow-surface);
-}
-.roster-list-resting {
-    border-left: 4px solid var(--status-red-border);
-    padding-left: var(--space-3);
-    background: var(--status-red-surface);
-}
 
     h1 {
         font-size: 1.5rem;
     }
-.roster-list-available {
-    border-left: 4px solid var(--status-green-border);
-    padding-left: var(--space-3);
-    background: var(--status-green-surface);
-}
-.roster-list-checkArmFirst {
-    border-left: 4px solid var(--status-yellow-border);
-    padding-left: var(--space-3);
-    background: var(--status-yellow-surface);
-}
-.roster-list-resting {
-    border-left: 4px solid var(--status-red-border);
-    padding-left: var(--space-3);
-    background: var(--status-red-surface);
-}
 
     #status[data-level] h2 {
         font-size: 2rem;
     }
-.roster-list-available {
-    border-left: 4px solid var(--status-green-border);
-    padding-left: var(--space-3);
-    background: var(--status-green-surface);
-}
-.roster-list-checkArmFirst {
-    border-left: 4px solid var(--status-yellow-border);
-    padding-left: var(--space-3);
-    background: var(--status-yellow-surface);
-}
-.roster-list-resting {
-    border-left: 4px solid var(--status-red-border);
-    padding-left: var(--space-3);
-    background: var(--status-red-surface);
-}
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1076,19 +965,57 @@ footer {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
     }
+}
+
+.app-link {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    background: var(--accent);
+    color: var(--accent-text);
+    text-decoration: none;
+    border-radius: var(--radius-control);
+    font-weight: 700;
+}
+
+.app-link:hover {
+    filter: brightness(0.9);
+}
+
+.app-link:focus-visible,
+.switch-role-link:focus-visible,
+.how-it-works-link:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.switch-role-link,
+.how-it-works-link {
+    display: inline-block;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    color: var(--muted-text);
+    text-decoration: underline;
+}
+
+.switch-role-link:hover,
+.how-it-works-link:hover {
+    color: var(--accent);
+}
+
 .roster-list-available {
     border-left: 4px solid var(--status-green-border);
     padding-left: var(--space-3);
     background: var(--status-green-surface);
 }
+
 .roster-list-checkArmFirst {
     border-left: 4px solid var(--status-yellow-border);
     padding-left: var(--space-3);
     background: var(--status-yellow-surface);
 }
+
 .roster-list-resting {
     border-left: 4px solid var(--status-red-border);
     padding-left: var(--space-3);
     background: var(--status-red-surface);
-}
 }

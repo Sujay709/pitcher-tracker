@@ -36,6 +36,11 @@
     border-top: 4px solid var(--status-yellow-border);
 }
 
+#player,
+#coach {
+    scroll-margin-top: 5rem;
+}
+
 .landing-card h3 {
     margin-bottom: var(--space-3);
     font-size: 1.25rem;
