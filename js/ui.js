@@ -273,6 +273,12 @@ export function renderStatus(status) {
     }
 
     statusElement.append(headline, detail);
+    if (status.overMax) {
+        const warning = document.createElement("p");
+        warning.className = "status-warning";
+        warning.textContent = "Daily pitch total exceeds the age-group maximum.";
+        statusElement.append(warning);
+    }
 }
 
 export function renderAvailabilityStrip(availableDate, today) {
@@ -454,11 +460,16 @@ export function setupShare({ getSnapshot, getShareUrl, onProfileSave, profile })
             showStatus("Enter a display name up to 30 characters and a team code using 2-12 letters, numbers, or hyphens.", "error");
             return;
         }
-        onProfileSave({
-            displayName: nameInput.value,
-            teamCode: teamInput.value,
-        });
-        showStatus("Settings saved.");
+        try {
+            onProfileSave({
+                displayName: nameInput.value,
+                teamCode: teamInput.value,
+            });
+            showStatus("Settings saved.");
+        } catch (error) {
+            console.error("Could not save profile:", error);
+            showStatus("Could not save settings. Please try again.", "error");
+        }
     });
 
     openButton.addEventListener("click", () => {
@@ -471,11 +482,16 @@ export function setupShare({ getSnapshot, getShareUrl, onProfileSave, profile })
             showStatus("Enter a display name up to 30 characters and a team code using 2-12 letters, numbers, or hyphens.", "error");
             return;
         }
-        onProfileSave({
-            displayName: nameInput.value,
-            teamCode: teamInput.value,
-        });
-        renderPreview();
+        try {
+            onProfileSave({
+                displayName: nameInput.value,
+                teamCode: teamInput.value,
+            });
+            renderPreview();
+        } catch (error) {
+            console.error("Could not save profile:", error);
+            showStatus("Could not save settings. Please try again.", "error");
+        }
     });
 
     copyButton.addEventListener("click", async () => {

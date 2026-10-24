@@ -1,4 +1,10 @@
-import { parseCount, todayLocal, validateOuting } from "./workload.js";
+import {
+    parseCount,
+    todayLocal,
+    validCalendarDate,
+    validateCheckin,
+    validateOuting,
+} from "./workload.js";
 
 const STORAGE_KEY = "pitcherTracker.outings";
 const CHECKINS_STORAGE_KEY = "pitcherTracker.checkins";
@@ -33,7 +39,9 @@ export function loadCheckins() {
         const raw = localStorage.getItem(CHECKINS_STORAGE_KEY);
         if (raw === null) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        return Array.isArray(parsed)
+            ? parsed.filter((checkin) => !validateCheckin(checkin, todayLocal()))
+            : [];
     } catch (err) {
         console.error("Could not read saved check-ins:", err);
         return [];
@@ -113,7 +121,25 @@ export function loadRoster() {
         const raw = localStorage.getItem(ROSTER_STORAGE_KEY);
         if (raw === null) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        return Array.isArray(parsed)
+            ? parsed.filter((player) =>
+                  player &&
+                  typeof player === "object" &&
+                  typeof player.playerId === "string" &&
+                  player.playerId.length > 0 &&
+                  typeof player.name === "string" &&
+                  player.name.length > 0 &&
+                  typeof player.teamCode === "string" &&
+                  validCalendarDate(player.asOf) &&
+                  (player.availableDate === null ||
+                      validCalendarDate(player.availableDate)) &&
+                  Number.isInteger(player.sevenDayTotal) &&
+                  player.sevenDayTotal >= 0 &&
+                  player.sevenDayTotal <= 1400 &&
+                  (player.checkin === null ||
+                      !validateCheckin(player.checkin, todayLocal())),
+              )
+            : [];
     } catch (err) {
         console.error("Could not read saved roster:", err);
         return [];
@@ -139,7 +165,10 @@ export function saveCoachTeamCode(teamCode) {
 
 export function addOuting(outing) {
     const outings = loadOutings();
-    const newOuting = { ...outing, id: crypto.randomUUID() };
+    const id = globalThis.crypto?.randomUUID
+        ? globalThis.crypto.randomUUID()
+        : `outing-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+    const newOuting = { ...outing, id };
     outings.push(newOuting);
     saveOutings(outings);
     return newOuting;

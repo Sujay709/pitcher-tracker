@@ -105,8 +105,13 @@ function createPlayerCard(player, groupKey) {
     removeButton.textContent = "Remove";
     removeButton.addEventListener("click", () => {
         if (!window.confirm(`Remove ${player.name} from the roster?`)) return;
-        saveRoster(removePlayer(loadRoster(), player.playerId));
-        renderRoster();
+        try {
+            saveRoster(removePlayer(loadRoster(), player.playerId));
+            renderRoster();
+        } catch (error) {
+            console.error("Could not remove player from roster:", error);
+            showMessage("Could not update the roster. Please try again.", "error");
+        }
     });
     card.append(removeButton);
     return card;
@@ -260,10 +265,15 @@ document.getElementById("coach-team-form").addEventListener("submit", (event) =>
         teamStatus.textContent = "Enter a team code using 2-12 letters, numbers, or hyphens.";
         return;
     }
-    saveCoachTeamCode(code);
-    teamInput.value = code.toUpperCase();
-    teamStatus.textContent = "Team code saved on this device.";
-    if (pendingSnapshot) previewSnapshot(pendingSnapshot);
+    try {
+        saveCoachTeamCode(code);
+        teamInput.value = code.toUpperCase();
+        teamStatus.textContent = "Team code saved on this device.";
+        if (pendingSnapshot) previewSnapshot(pendingSnapshot);
+    } catch (error) {
+        console.error("Could not save coach team code:", error);
+        teamStatus.textContent = "Could not save the team code. Please try again.";
+    }
 });
 
 document.getElementById("load-snapshot").addEventListener("click", () => {
@@ -280,11 +290,16 @@ document.getElementById("add-snapshot").addEventListener("click", () => {
     ) {
         return;
     }
-    saveRoster(upsertPlayer(loadRoster(), pendingSnapshot));
-    showMessage(`${pendingSnapshot.name} was added to the roster.`);
-    confirmation.hidden = true;
-    pendingSnapshot = null;
-    renderRoster();
+    try {
+        saveRoster(upsertPlayer(loadRoster(), pendingSnapshot));
+        showMessage(`${pendingSnapshot.name} was added to the roster.`);
+        confirmation.hidden = true;
+        pendingSnapshot = null;
+        renderRoster();
+    } catch (error) {
+        console.error("Could not save roster:", error);
+        showMessage("Could not save the roster. Please try again.", "error");
+    }
 });
 
 document.getElementById("cancel-snapshot").addEventListener("click", () => {

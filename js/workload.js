@@ -73,7 +73,7 @@ export function validateOuting(raw, today) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
         return "Date is required";
     }
-    if (!raw.date) return "Date is required";
+    if (!validCalendarDate(raw.date)) return "Date is required";
     if (raw.date > today) return "Date cannot be in the future";
 
     if (!Number.isInteger(raw.pitchCount) || raw.pitchCount < 1 || raw.pitchCount > 200) {
@@ -92,7 +92,10 @@ export function validateOuting(raw, today) {
 }
 
 export function validateCheckin(raw, today) {
-    if (!raw || !raw.date) return "Date is required";
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+        return "Date is required";
+    }
+    if (!validCalendarDate(raw.date)) return "Date is required";
     if (raw.date > today) return "Date cannot be in the future";
     if (!Number.isInteger(raw.feeling) || raw.feeling < 1 || raw.feeling > 5) {
         return "Feeling must be an integer from 1 to 5";
@@ -120,7 +123,7 @@ export function upsertPlayer(roster, incomingPlayer) {
     if (existingIndex === -1) return [...roster, { ...incomingPlayer }];
 
     const existingPlayer = roster[existingIndex];
-    if (incomingPlayer.asOf < existingPlayer.asOf) return [...roster];
+    if (incomingPlayer.asOf <= existingPlayer.asOf) return [...roster];
 
     return roster.map((player, index) =>
         index === existingIndex ? { ...incomingPlayer } : player,
@@ -163,7 +166,8 @@ export function groupRoster(roster, today) {
     for (const snapshot of roster) {
         const status = rosterStatus(snapshot, today);
         const hasArmConcern =
-            snapshot.checkin?.feeling === 4 || snapshot.checkin?.feeling === 5;
+            snapshot.checkin?.date === snapshot.asOf &&
+            (snapshot.checkin.feeling === 4 || snapshot.checkin.feeling === 5);
         const player = { ...snapshot, status, staleDays: staleDays(snapshot, today) };
 
         if (hasArmConcern) {
@@ -193,7 +197,7 @@ function randomPlayerId() {
     return `player-${Math.random().toString(36).slice(2)}-${Date.now()}`;
 }
 
-function validCalendarDate(value) {
+export function validCalendarDate(value) {
     if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
     const [year, month, day] = value.split("-").map(Number);
     const date = new Date(Date.UTC(year, month - 1, day));
@@ -480,13 +484,9 @@ export function availableDate(outings, ageGroup, guidelines) {
 
 export function daysBetween(fromStr, toStr) {
     if (toStr <= fromStr) return 0;
-    let current = fromStr;
-    let count = 0;
-    while (current !== toStr && count < 60) {
-        current = addDays(current, 1);
-        count += 1;
-    }
-    return count;
+    const from = new Date(`${fromStr}T00:00:00Z`);
+    const to = new Date(`${toStr}T00:00:00Z`);
+    return Math.floor((to - from) / 86400000);
 }
 
 function overMaxNote(outings, ageGroup, guidelines, today) {
@@ -497,9 +497,7 @@ function overMaxNote(outings, ageGroup, guidelines, today) {
         if (!(days[date].pitches > group.maxPitches)) continue;
         const rest = requiredRest(days[date].pitches, days[date].maxEffort, ageGroup, guidelines);
         const ready = addDays(date, rest + 1);
-        if (today < ready) {
-            return ` Over the ${group.maxPitches} pitch max for ${ageGroup}.`;
-        }
+        return ` Over the ${group.maxPitches} pitch max for ${ageGroup}.`;
     }
     return "";
 }
@@ -529,6 +527,7 @@ export function getStatus(outings, ageGroup, guidelines, today, checkin = null) 
             availableDate: ready,
             daysShort: 0,
             reason: "available to pitch",
+            overMax: Boolean(overMaxNote(outings, ageGroup, guidelines, today)),
         };
     }
     const daysShort = daysBetween(today, ready);
@@ -541,5 +540,6 @@ export function getStatus(outings, ageGroup, guidelines, today, checkin = null) 
         availableDate: ready,
         daysShort,
         reason,
+        overMax: Boolean(overMaxNote(outings, ageGroup, guidelines, today)),
     };
 }

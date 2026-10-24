@@ -77,7 +77,7 @@ export function runTests(guidelines) {
         player("player-1", "2026-10-21", 70),
     );
     console.log(
-        `${rosterAfterSameDatePlayer[0].sevenDayTotal === 70 ? "PASS" : "FAIL"}: roster replaces same date`,
+        `${rosterAfterSameDatePlayer[0].sevenDayTotal === 60 ? "PASS" : "FAIL"}: roster ignores same date`,
     );
     const rosterAfterRemove = removePlayer(rosterAfterSameDatePlayer, "player-1");
     console.log(
@@ -97,6 +97,13 @@ export function runTests(guidelines) {
         checkin: null,
         ...overrides,
     });
+    const longGapStatus = rosterStatus(
+        readinessSnapshot({ availableDate: "2027-01-01" }),
+        "2026-10-23",
+    );
+    console.log(
+        `${longGapStatus.daysShort === 70 ? "PASS" : "FAIL"}: rosterStatus counts gaps over 60 days`,
+    );
     console.log(
         `${availableOn(readinessSnapshot({ availableDate: null }), "2026-03-28") &&
         availableOn(readinessSnapshot({ availableDate: "2026-04-01" }), "2026-04-02") &&
@@ -134,6 +141,7 @@ export function runTests(guidelines) {
             readinessSnapshot({
                 playerId: "sore",
                 name: "Amy",
+                asOf: "2026-04-02",
                 availableDate: "2026-04-01",
                 checkin: { date: "2026-04-02", feeling: 4 },
             }),
@@ -150,6 +158,7 @@ export function runTests(guidelines) {
             readinessSnapshot({
                 playerId: "pain",
                 name: "Ben",
+                asOf: "2026-04-02",
                 availableDate: "2026-04-01",
                 checkin: { date: "2026-04-02", feeling: 5 },
             }),
@@ -653,6 +662,11 @@ export function runTests(guidelines) {
         {
             name: "empty date",
             raw: { date: "", pitchCount: 40, type: "game", effort: 5 },
+            expected: "Date is required",
+        },
+        {
+            name: "invalid calendar date",
+            raw: { date: "2026-02-30", pitchCount: 40, type: "game", effort: 5 },
             expected: "Date is required",
         },
     ];

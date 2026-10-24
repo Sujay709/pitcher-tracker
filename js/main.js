@@ -16,10 +16,10 @@ import {
 } from "./storage.js";
 import {
     getStatus,
+    countsTowardRest,
     parseImport,
     sortOutings,
     todayLocal,
-    latestCheckin,
     buildSnapshot,
     encodeSnapshot,
     upsertCheckin,
@@ -109,7 +109,7 @@ if (guidelines) {
             ageGroup,
             guidelines,
             today,
-            latestCheckin(checkins),
+            todayCheckin,
         );
         renderStatus(status);
         renderAvailabilityStrip(status.availableDate, today);
@@ -118,13 +118,29 @@ if (guidelines) {
         renderHistory(sortOutings(outings));
     }
 
+    let refreshTimer;
+    function scheduleRefresh() {
+        clearTimeout(refreshTimer);
+        const now = new Date();
+        const nextDay = new Date(now);
+        nextDay.setHours(24, 0, 0, 0);
+        refreshTimer = setTimeout(() => {
+            refresh();
+            scheduleRefresh();
+        }, nextDay - now);
+    }
+
     if (RUN_TESTS) {
         runTests(guidelines);
     }
 
     setupAgeGroup(ageGroup, (nextAgeGroup) => {
         ageGroup = nextAgeGroup;
-        saveAgeGroup(ageGroup);
+        try {
+            saveAgeGroup(ageGroup);
+        } catch (error) {
+            console.error("Could not save age group:", error);
+        }
         refresh();
     });
 
@@ -146,12 +162,17 @@ if (guidelines) {
         renderSavedCount();
 
         const maxPitches = guidelines.ageGroups[ageGroup].maxPitches;
+        const dailyTotal = loadOutings()
+            .filter(({ date, ...savedOuting }) =>
+                date === outing.date && countsTowardRest({ date, ...savedOuting }),
+            )
+            .reduce((total, savedOuting) => total + savedOuting.pitchCount, 0);
         return {
             message:
-                outing.pitchCount > maxPitches
+                dailyTotal > maxPitches
                     ? `Warning: this exceeds the ${maxPitches}-pitch max for the ${ageGroup} age group.`
                     : `Logged ${outing.pitchCount} pitches.`,
-            kind: outing.pitchCount > maxPitches ? "warning" : "success",
+            kind: dailyTotal > maxPitches ? "warning" : "success",
             saved: true,
         };
     });
@@ -177,7 +198,7 @@ if (guidelines) {
                 profile.teamCode,
                 playerId,
                 loadOutings(),
-                latestCheckin(loadCheckins()),
+                loadCheckins().find(({ date }) => date === todayLocal()) ?? null,
                 ageGroup,
                 guidelines,
                 todayLocal(),
@@ -185,8 +206,13 @@ if (guidelines) {
         getShareUrl: (snapshot) =>
             `${new URL("coach.html", window.location.href).href}#${encodeSnapshot(snapshot)}`,
         onProfileSave: ({ displayName, teamCode }) => {
-            profile = { ...profile, displayName, teamCode };
-            saveProfile(profile);
+            try {
+                saveProfile({ displayName, teamCode });
+                profile = { ...profile, displayName, teamCode };
+            } catch (error) {
+                console.error("Could not save profile:", error);
+                throw error;
+            }
         },
     });
     setupImport((rawJson) => {
@@ -196,7 +222,15 @@ if (guidelines) {
             return { message: `Error: ${result.error}`, kind: "error" };
         }
 
-        saveOutings([...existingOutings, ...result.outings]);
+        try {
+            saveOutings([...existingOutings, ...result.outings]);
+        } catch (error) {
+            console.error("Could not save imported outings:", error);
+            return {
+                message: "Error: Imported outings could not be saved. Please try again.",
+                kind: "error",
+            };
+        }
         refresh();
         const importedWord = result.outings.length === 1 ? "outing" : "outings";
         const skippedWord = result.skipped === 1 ? "row" : "rows";
@@ -205,5 +239,8 @@ if (guidelines) {
             kind: "success",
         };
     });
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("pageshow", refresh);
     refresh();
+    scheduleRefresh();
 }
