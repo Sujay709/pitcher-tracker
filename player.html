@@ -14,38 +14,58 @@
     <link rel="apple-touch-icon" href="icons/icon-180.png">
 </head>
 <body>
+    <header class="dashboard-header">
+        <div>
+            <p class="eyebrow">PLAYER DASHBOARD</p>
+            <h1>Pitcher tracker</h1>
+        </div>
+        <div class="header-actions">
+            <div class="age-group-control">
+                <label for="age-group">Age group</label>
+                <select id="age-group">
+                    <option value="15-16" selected>15-16</option>
+                    <option value="17-18">17-18</option>
+                </select>
+            </div>
+            <button id="theme-toggle" class="theme-toggle" type="button">
+                Use dark mode
+            </button>
+        </div>
+        <nav class="dashboard-links" aria-label="App navigation">
+            <a href="coach.html" class="app-link">Coach board</a>
+            <a href="index.html?choose=1" class="switch-role-link">Switch role</a>
+        </nav>
+    </header>
+
     <section id="status" aria-live="polite"></section>
 
     <section class="availability-section" aria-labelledby="availability-heading">
-        <h2 id="availability-heading">Next 7 days</h2>
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">YOUR WEEK</p>
+                <h2 id="availability-heading">Pitching outlook</h2>
+            </div>
+            <span class="section-caption">Today + 6 days</span>
+        </div>
         <ul id="availability-strip"></ul>
     </section>
 
     <section class="checkin-section" aria-labelledby="checkin-heading">
-        <h2 id="checkin-heading">How's your arm today?</h2>
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">QUICK CHECK-IN</p>
+                <h2 id="checkin-heading">How's your arm?</h2>
+            </div>
+            <span class="section-caption">Takes 2 seconds</span>
+        </div>
         <fieldset id="checkin-options">
             <legend class="visually-hidden">Choose how your arm feels today</legend>
         </fieldset>
         <p id="checkin-message" aria-live="polite"></p>
     </section>
 
-    <header>
-        <h1>Pitcher Workload Tracker</h1>
-        <div class="age-group-control">
-            <label for="age-group">Age group</label>
-            <select id="age-group">
-                <option value="15-16" selected>15-16</option>
-                <option value="17-18">17-18</option>
-            </select>
-        </div>
-        <button id="theme-toggle" class="theme-toggle" type="button">
-            Use dark mode
-        </button>
-        <a href="coach.html" class="app-link">Coach Board</a>
-        <a href="index.html?choose=1" class="switch-role-link">Switch role</a>
-    </header>
-
     <section class="share-card" aria-labelledby="share-settings-heading">
+        <p class="eyebrow">SHARE</p>
         <h2 id="share-settings-heading">Send today's update</h2>
         <p>Give your coach one link with your current rest status, recent pitches, and arm check-in.</p>
         <form id="share-profile-form">
@@ -85,7 +105,8 @@
         <p class="field-hint">Your coach opens the link, checks the update, and taps Add to roster. Nothing is sent to a server.</p>
     </section>
 
-    <section class="counter-section" aria-labelledby="counter-heading">
+    <section class="counter-section dashboard-primary" aria-labelledby="counter-heading">
+        <p class="eyebrow">LIVE COUNTER</p>
         <h2 id="counter-heading">Pitch counter</h2>
         <div class="counter-display">
             <span id="count-label">Current pitch count</span>
@@ -105,7 +126,8 @@
         </div>
     </section>
 
-    <section>
+    <section class="outing-section">
+        <p class="eyebrow">MANUAL ENTRY</p>
         <h2>Log an outing</h2>
         <form id="outing-form">
             <div class="field field-date">
@@ -142,8 +164,14 @@
 
     <p id="week-total"></p>
 
-    <section>
-        <h2>History</h2>
+    <section class="history-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">RECORD</p>
+                <h2>Recent outings</h2>
+            </div>
+            <span class="section-caption">Manage your data</span>
+        </div>
         <button id="export-data" type="button">Export data</button>
         <label class="import-button" for="import-data">Import JSON</label>
         <input id="import-data" type="file" accept=".json,application/json">

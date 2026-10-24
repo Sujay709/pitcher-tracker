@@ -1023,3 +1023,197 @@ footer {
     padding-left: var(--space-3);
     background: var(--status-red-surface);
 }
+
+/* Mobile dashboard layout */
+body {
+    max-width: 42rem;
+    gap: var(--space-3);
+    padding-top: max(var(--space-3), env(safe-area-inset-top));
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+}
+
+header,
+section {
+    padding: var(--space-4);
+    border-radius: 1rem;
+}
+
+.dashboard-header {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-2);
+    border: 0;
+    background: transparent;
+}
+
+.dashboard-header h1 {
+    font-size: 1.75rem;
+    letter-spacing: -0.04em;
+}
+
+.eyebrow {
+    margin-bottom: var(--space-1);
+    color: var(--accent);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    align-items: end;
+}
+
+.header-actions .theme-toggle {
+    min-height: 3rem;
+    margin: 0;
+    padding-inline: var(--space-2);
+    font-size: 0.8125rem;
+}
+
+.dashboard-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.dashboard-links .app-link {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+}
+
+.dashboard-links .switch-role-link {
+    min-height: auto;
+    padding: 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.section-heading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.section-heading h2 {
+    margin-bottom: 0;
+}
+
+.section-caption {
+    padding-top: 0.25rem;
+    color: var(--muted-text);
+    font-size: 0.75rem;
+    text-align: right;
+}
+
+textarea {
+    display: block;
+    width: 100%;
+    min-height: 7rem;
+    margin-bottom: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    resize: vertical;
+}
+
+textarea:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Keep the primary player journey in a useful thumb-friendly order. */
+body:has(#outing-form) > .dashboard-header { order: 1; }
+body:has(#outing-form) > #status { order: 2; }
+body:has(#outing-form) > .availability-section { order: 3; }
+body:has(#outing-form) > .checkin-section { order: 4; }
+body:has(#outing-form) > #week-total { order: 5; }
+body:has(#outing-form) > .counter-section { order: 6; }
+body:has(#outing-form) > .outing-section { order: 7; }
+body:has(#outing-form) > .share-card { order: 8; }
+body:has(#outing-form) > .history-section { order: 9; }
+body:has(#outing-form) > footer { order: 10; }
+
+body:has(#outing-form) #status {
+    padding: var(--space-6) var(--space-4);
+}
+
+body:has(#outing-form) #status[data-level] h2 {
+    font-size: 2rem;
+}
+
+body:has(#outing-form) #week-total {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: var(--space-3);
+    padding: var(--space-4);
+}
+
+body:has(#outing-form) .weekly-total-number {
+    grid-row: span 2;
+    font-size: 2.5rem;
+}
+
+body:has(#outing-form) .weekly-total-note {
+    grid-column: 2;
+}
+
+.dashboard-primary {
+    border-color: var(--accent);
+    box-shadow: 0 0.5rem 1.5rem rgb(29 78 216 / 0.08);
+}
+
+.dashboard-primary .count-add {
+    min-height: 5.5rem;
+    border-radius: 1rem;
+}
+
+.history-section > .section-heading {
+    margin-bottom: var(--space-3);
+}
+
+/* Coach dashboard: review and roster first; settings stay secondary. */
+body:has(#snapshot-input) > .dashboard-header { order: 1; }
+body:has(#snapshot-input) > .share-card { order: 2; }
+body:has(#snapshot-input) > .paste-section { order: 3; }
+body:has(#snapshot-input) > .roster-section { order: 4; }
+body:has(#snapshot-input) > .planner-section { order: 5; }
+body:has(#snapshot-input) > .settings-section { order: 6; }
+body:has(#snapshot-input) > footer { order: 7; }
+
+body:has(#snapshot-input) .share-card {
+    background: linear-gradient(135deg, var(--surface), var(--surface-muted));
+}
+
+body:has(#snapshot-input) .roster-card {
+    padding: var(--space-4);
+}
+
+body:has(#snapshot-input) .roster-list {
+    gap: var(--space-2);
+}
+
+body:has(#snapshot-input) .settings-section {
+    padding-block: var(--space-3);
+}
+
+@media (min-width: 40rem) {
+    body {
+        gap: var(--space-4);
+    }
+
+    .dashboard-header {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        padding-inline: 0;
+    }
+
+    .dashboard-links {
+        grid-column: 1 / -1;
+    }
+}

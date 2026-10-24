@@ -12,12 +12,19 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>Coach board</h1>
-        <a href="index.html?choose=1" class="switch-role-link">Switch role</a>
+    <header class="dashboard-header">
+        <div>
+            <p class="eyebrow">COACH DASHBOARD</p>
+            <h1>Team workload</h1>
+        </div>
+        <nav class="dashboard-links" aria-label="App navigation">
+            <a href="player.html" class="app-link">Player app</a>
+            <a href="index.html?choose=1" class="switch-role-link">Switch role</a>
+        </nav>
     </header>
-    <a href="player.html" class="app-link">Player App</a>
+
     <section class="share-card" aria-labelledby="snapshot-heading">
+        <p class="eyebrow">INBOX</p>
         <h2 id="snapshot-heading">Add a player</h2>
         <p id="snapshot-message" aria-live="polite">Paste a player's update link below. You will review it before it is added.</p>
         <dl id="snapshot-details" class="snapshot-details" hidden></dl>
@@ -31,8 +38,14 @@
         </div>
         <p class="share-safety-note">Player updates include arm health information. Keep links and roster data with the coaching staff.</p>
     </section>
-    <section aria-labelledby="team-heading">
-        <h2 id="team-heading">Team code</h2>
+    <section class="settings-section" aria-labelledby="team-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">SETTINGS</p>
+                <h2 id="team-heading">Team code</h2>
+            </div>
+            <span class="section-caption">Optional match check</span>
+        </div>
         <form id="coach-team-form">
             <label for="coach-team-code">Your team's code</label>
             <input id="coach-team-code" type="text" maxlength="12"
@@ -41,19 +54,31 @@
         </form>
         <p id="coach-team-status" aria-live="polite"></p>
     </section>
-    <section aria-labelledby="paste-heading">
+    <section class="paste-section" aria-labelledby="paste-heading">
+        <p class="eyebrow">INBOX</p>
         <h2 id="paste-heading">Paste player update</h2>
         <label for="snapshot-input">Full link or raw snapshot code</label>
         <textarea id="snapshot-input" rows="4"
             placeholder="Paste the link your player sent"></textarea>
         <button id="load-snapshot" type="button">Review player update</button>
     </section>
-    <section aria-labelledby="roster-heading">
-        <h2 id="roster-heading">Your roster</h2>
+    <section class="roster-section" aria-labelledby="roster-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">TEAM</p>
+                <h2 id="roster-heading">Your roster</h2>
+            </div>
+            <span class="section-caption">Live status</span>
+        </div>
         <div id="roster-groups"></div>
     </section>
-    <section aria-labelledby="planner-heading">
-        <h2 id="planner-heading">Lineup planner</h2>
+    <section class="planner-section" aria-labelledby="planner-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">PLAN AHEAD</p>
+                <h2 id="planner-heading">Lineup planner</h2>
+            </div>
+        </div>
         <label for="planner-date">Who can pitch on...</label>
         <input id="planner-date" type="date">
         <p class="field-hint">Based on each player's last update.</p>
