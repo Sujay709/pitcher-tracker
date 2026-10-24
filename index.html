@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pitcher Tracker">
+    <meta name="description" content="A simple tool to help young pitchers manage their throwing schedule and rest days safely.">
+    <title>Pitcher Workload Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+    <header>
+        <h1>Pitcher Workload Tracker</h1>
+        <p>Know when you’re rested. Know who can pitch.</p>
+    </header>
+    <main>
+        <section>
+            <h2>Who are you?</h2>
+            <section id="player">
+                <h3>I’m a player</h3>
+                <p>Log your throwing and see when your arm is rested.</p>
+                <ol>
+                    <li>Pick your age group (15-16 or 17-18).</li>
+                    <li>After you throw, log the outing: date, pitch count, type, and effort.</li>
+                    <li>Check your status card before you pitch. It tells you in words if you’re good to go and the date you’re available.</li>
+                    <li>Tap Share with coach to send your status to your team chat.</li>
+                </ol>
+                <a href="player.html">Open player app</a>
+            </section>
+            <section id="coach">
+                <h3>I’m a coach</h3>
+                <p>See who can pitch on any day you pick.</p>
+                <ol>
+                    <li>Enter your team code once.</li>
+                    <li>Have players tap Share with coach and send you their link in your team chat.</li>
+                    <li>Open each link and confirm to add the player to your board.</li>
+                    <li>Use the board and the planner. Check each card’s “updated” label before you decide.</li>
+                </ol>
+                <a href="coach.html">Open coach board</a>
+            </section>
+        </section>
+        <section>
+            <h2>Good to know</h2>
+            <ul>
+                <li>Your data stays on your device. There are no accounts, and nothing is shared unless a player taps Share.</li>
+                <li>This is guidance based on Pitch Smart rest guidelines. It’s not medical advice. If your arm hurts, stop and tell a coach, parent, or athletic trainer.</li>
+                <li>It works best on your phone. You can add it to your Home Screen from your browser’s menu.</li>
+                <li>Use Export to keep a backup. Browsers can clear stored data.</li>
+            </ul>
+            <details>
+                <summary>How are rest days calculated?</summary>
+                <p>Games, live BP, and bullpens at effort 6 or higher count. Your pitches are added up per day, and that total sets your rest days from the Pitch Smart table for your age group. Effort 9 or 10 adds one more day (this part is my own extension, from Pitch Smart). You’re available again on the outing date plus your rest days plus one.</p>
+            </details>
+        </section>
+    </main>
+    <footer>
+        <p>Based on Pitch Smart guidelines. Not medical advice.</p>
+    </footer>
+</body>
+</html>
