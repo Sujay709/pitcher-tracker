@@ -1,8 +1,8 @@
 # Pitcher Workload Tracker
 
-Small, local-first tracker for youth baseball pitchers. Log an outing, choose
-an age group, and get a quick answer about whether the pitcher is ready to
-throw again.
+Small, local-first tracker for baseball pitchers ages 15-18. Log an outing,
+choose an age group, and get a quick answer about whether the minimum rest
+requirement is met.
 
 ## Live app
 
@@ -63,7 +63,10 @@ The display name, team code, and a randomly generated player ID are stored
 locally. The player ID is created once so later snapshots identify the same
 player rather than creating a duplicate. Sharing is never automatic. A
 snapshot includes arm health information, so share it only with your coach or
-team chat and get a parent or coach okay according to your team’s rules.
+team chat and get a parent or coach okay according to your team’s rules. The
+team code is only a match check, not authentication. Snapshot data is stored in
+the URL hash fragment, not the query string, so it is not sent in normal HTTP
+requests or server logs.
 
 The coach page keeps a local roster, grouped by readiness and arm concerns. It
 also has a lineup planner for a selected date. Player cards show the snapshot
@@ -81,8 +84,11 @@ The app groups outings by date and only counts:
 For each day that counts, it uses the pitch-count rest bands for the selected
 age group. The latest resulting availability date wins. A pitcher is marked
 green when that date has passed, yellow when it is within two days, and red
-otherwise. The weekly total uses the same “counts toward rest” rule and covers
-today plus the previous six days.
+otherwise. Yellow is an app reminder, not a Pitch Smart category. The weekly
+total uses the same “counts toward rest” rule and covers today plus the
+previous six days. The app adds one extra rest day for effort 9 or 10; that is
+an app rule, not a Pitch Smart rule. Catch and long toss do not add rest in
+this app. The result is not medical clearance.
 
 The pitch-count bands come from [Pitch Smart’s published pitch-count
 guidelines](https://pitchsmart.com/pitch-count-guidelines). I checked the
@@ -105,6 +111,10 @@ source on 2026-10-09; the copy used by the app is in
 - Exported backups are not encrypted by this app. Treat them like any other
   personal health-related record.
 - This is guidance based on published recommendations, not medical advice.
+- Shared snapshots include the raw outings through the snapshot date and are
+  recomputed using the coach device's current date. Snapshots older than two
+  days are shown as needing an update. A snapshot schema version rejects old
+  formats rather than guessing how to read them.
 
 ## Disclaimer
 

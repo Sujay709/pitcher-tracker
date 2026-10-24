@@ -19,6 +19,7 @@ import {
     rosterStatus,
     staleDays,
     groupRoster,
+    refreshSnapshot,
     validateCheckin,
     validateOuting,
     weekAvailability,
@@ -92,17 +93,17 @@ export function runTests(guidelines) {
         playerId: "readiness-player",
         name: "Readiness Player",
         teamCode: "AB-12",
-        asOf: "2026-03-28",
+        asOf: "2026-04-01",
         availableDate: "2026-04-02",
         checkin: null,
         ...overrides,
     });
     const longGapStatus = rosterStatus(
-        readinessSnapshot({ availableDate: "2027-01-01" }),
+        readinessSnapshot({ asOf: "2026-03-28", availableDate: "2027-01-01" }),
         "2026-10-23",
     );
     console.log(
-        `${longGapStatus.daysShort === 70 ? "PASS" : "FAIL"}: rosterStatus counts gaps over 60 days`,
+        `${longGapStatus.level === "unknown" ? "PASS" : "FAIL"}: rosterStatus marks stale snapshots unknown`,
     );
     console.log(
         `${availableOn(readinessSnapshot({ availableDate: null }), "2026-03-28") &&
@@ -214,13 +215,13 @@ export function runTests(guidelines) {
     );
     const encodeObject = (value) => encodeSnapshot(value);
     console.log(
-        `${decodeSnapshot(encodeObject({ ...snapshot, version: 2 })).error ? "PASS" : "FAIL"}: snapshot wrong version`,
+        `${decodeSnapshot(encodeObject({ ...snapshot, version: 1 })).error ? "PASS" : "FAIL"}: snapshot wrong version`,
     );
     console.log(
         `${decodeSnapshot(encodeObject({ ...snapshot, name: "" })).error ? "PASS" : "FAIL"}: snapshot missing name`,
     );
     console.log(
-        `${decodeSnapshot("A".repeat(2001)).error ? "PASS" : "FAIL"}: snapshot oversized input`,
+        `${decodeSnapshot("A".repeat(12001)).error ? "PASS" : "FAIL"}: snapshot oversized input`,
     );
     console.log(
         `${decodeSnapshot(encodeObject({ ...snapshot, asOf: "2026-02-30" })).error ? "PASS" : "FAIL"}: snapshot bad date`,
@@ -232,6 +233,28 @@ export function runTests(guidelines) {
     const decodedScript = decodeSnapshot(encodeObject({ ...snapshot, name: scriptName }));
     console.log(
         `${decodedScript.name === scriptName ? "PASS" : "FAIL"}: snapshot script name remains text`,
+    );
+    const refreshed = refreshSnapshot(
+        decodedSnapshot,
+        guidelines,
+        "2026-10-22",
+    );
+    console.log(
+        `${refreshed.sevenDayTotal === 70 && refreshed.availableDate === "2026-10-23"
+            ? "PASS"
+            : "FAIL"}: snapshot recomputes against coach date`,
+    );
+    const soreStatus = getStatus(
+        [],
+        "15-16",
+        guidelines,
+        "2026-10-21",
+        { date: "2026-10-21", feeling: 4 },
+    );
+    console.log(
+        `${soreStatus.level === "red" && soreStatus.armConcern
+            ? "PASS"
+            : "FAIL"}: sore check-in overrides green status`,
     );
 
     const checkinValidationTests = [

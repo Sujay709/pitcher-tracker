@@ -177,8 +177,14 @@ if (guidelines) {
         };
     });
     setupHistory((id) => {
-        deleteOuting(id);
-        refresh();
+        try {
+            deleteOuting(id);
+            refresh();
+        } catch (error) {
+            console.error("Could not delete outing:", error);
+            return { error };
+        }
+        return null;
     });
     setupCheckin(todayLocal, (checkin) => {
         try {
@@ -220,6 +226,13 @@ if (guidelines) {
         const result = parseImport(rawJson, existingOutings, todayLocal());
         if (result.error) {
             return { message: `Error: ${result.error}`, kind: "error" };
+        }
+        if (!window.confirm(
+            `Add ${result.outings.length} imported ${
+                result.outings.length === 1 ? "outing" : "outings"
+            } to your existing history?`,
+        )) {
+            return { message: "Import cancelled.", kind: "warning" };
         }
 
         try {

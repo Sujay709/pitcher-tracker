@@ -253,10 +253,14 @@ export function renderStatus(status) {
     statusElement.dataset.level = status.level;
 
     const headline = document.createElement("h2");
-    headline.textContent = headlineByLevel[status.level];
+    headline.textContent = status.armConcern
+        ? "Check your arm first"
+        : status.level === "green"
+          ? "Rest requirement met"
+          : headlineByLevel[status.level];
 
     const detail = document.createElement("p");
-    if (status.level === "green") {
+    if (status.armConcern || status.level === "green") {
         detail.textContent = status.reason;
     } else {
         const days = document.createElement("strong");

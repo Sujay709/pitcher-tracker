@@ -15,16 +15,40 @@ const TEAM_CODE_STORAGE_KEY = "pitcherTracker.teamCode";
 const PLAYER_ID_STORAGE_KEY = "pitcherTracker.playerId";
 const ROSTER_STORAGE_KEY = "pitcherTracker.roster";
 const COACH_TEAM_CODE_STORAGE_KEY = "pitcherTracker.coachTeamCode";
+const CORRUPT_BACKUP_STORAGE_KEY = "pitcherTracker.corruptBackup";
+
+function preserveCorruptValue(key, raw) {
+    try {
+        localStorage.setItem(
+            CORRUPT_BACKUP_STORAGE_KEY,
+            JSON.stringify({ key, raw, savedAt: new Date().toISOString() }),
+        );
+    } catch (backupError) {
+        console.error("Could not preserve corrupted data:", backupError);
+    }
+
+    function readRawForBackup(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (error) {
+            console.error("Could not read corrupted value for backup:", error);
+            return null;
+        }
+    }
+}
 
 export function loadOutings() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw === null) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed)
-            ? parsed.filter((outing) => !validateOuting(outing, todayLocal()))
-            : [];
+        if (!Array.isArray(parsed)) {
+            preserveCorruptValue(STORAGE_KEY, raw);
+            return [];
+        }
+        return parsed.filter((outing) => !validateOuting(outing, todayLocal()));
     } catch (err) {
+        preserveCorruptValue(STORAGE_KEY, readRawForBackup(STORAGE_KEY));
         console.error("Could not read saved outings:", err);
         return [];
     }
@@ -39,10 +63,13 @@ export function loadCheckins() {
         const raw = localStorage.getItem(CHECKINS_STORAGE_KEY);
         if (raw === null) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed)
-            ? parsed.filter((checkin) => !validateCheckin(checkin, todayLocal()))
-            : [];
+        if (!Array.isArray(parsed)) {
+            preserveCorruptValue(CHECKINS_STORAGE_KEY, raw);
+            return [];
+        }
+        return parsed.filter((checkin) => !validateCheckin(checkin, todayLocal()));
     } catch (err) {
+        preserveCorruptValue(CHECKINS_STORAGE_KEY, readRawForBackup(CHECKINS_STORAGE_KEY));
         console.error("Could not read saved check-ins:", err);
         return [];
     }
@@ -121,16 +148,25 @@ export function loadRoster() {
         const raw = localStorage.getItem(ROSTER_STORAGE_KEY);
         if (raw === null) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed)
-            ? parsed.filter((player) =>
+        if (!Array.isArray(parsed)) {
+            preserveCorruptValue(ROSTER_STORAGE_KEY, raw);
+            return [];
+        }
+        return parsed.filter((player) =>
                   player &&
                   typeof player === "object" &&
                   typeof player.playerId === "string" &&
                   player.playerId.length > 0 &&
+                  player.version === 2 &&
                   typeof player.name === "string" &&
                   player.name.length > 0 &&
                   typeof player.teamCode === "string" &&
+                  (player.ageGroup === "15-16" || player.ageGroup === "17-18") &&
                   validCalendarDate(player.asOf) &&
+                  Array.isArray(player.outings) &&
+                  player.outings.every((outing) =>
+                      !validateOuting(outing, player.asOf),
+                  ) &&
                   (player.availableDate === null ||
                       validCalendarDate(player.availableDate)) &&
                   Number.isInteger(player.sevenDayTotal) &&
@@ -138,9 +174,9 @@ export function loadRoster() {
                   player.sevenDayTotal <= 1400 &&
                   (player.checkin === null ||
                       !validateCheckin(player.checkin, todayLocal())),
-              )
-            : [];
+              );
     } catch (err) {
+        preserveCorruptValue(ROSTER_STORAGE_KEY, readRawForBackup(ROSTER_STORAGE_KEY));
         console.error("Could not read saved roster:", err);
         return [];
     }

@@ -4,6 +4,7 @@ import {
     decodeSnapshot,
     groupRoster,
     removePlayer,
+    refreshSnapshot,
     upsertPlayer,
 } from "./workload.js?coach=1";
 import {
@@ -26,6 +27,10 @@ const rosterGroups = document.getElementById("roster-groups");
 const plannerDate = document.getElementById("planner-date");
 const plannerResults = document.getElementById("planner-results");
 let pendingSnapshot = null;
+const guidelines = await fetch("data/guidelines.json").then((response) => {
+    if (!response.ok) throw new Error(`Failed to load guidelines: ${response.status}`);
+    return response.json();
+});
 
 function todayLocal() {
     const date = new Date();
@@ -66,6 +71,8 @@ function createPlayerCard(player, groupKey) {
     status.className = `roster-card-status roster-card-status-${player.status.level}`;
     status.textContent = groupKey === "checkArmFirst"
         ? "Check arm first"
+        : player.status.level === "unknown"
+          ? "Update needed"
         : player.status.level === "green"
           ? "Ready to pitch"
           : player.status.level === "yellow"
@@ -248,7 +255,7 @@ function previewSnapshot(snapshot) {
         details.hidden = true;
         return;
     }
-    pendingSnapshot = snapshot;
+    pendingSnapshot = refreshSnapshot(snapshot, guidelines, todayLocal());
     renderDetails(snapshot);
     confirmationText.textContent = `Add ${snapshot.name} to roster?`;
     const coachTeamCode = loadCoachTeamCode();

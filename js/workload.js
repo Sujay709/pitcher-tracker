@@ -1,7 +1,8 @@
 const YELLOW_THRESHOLD = 2;
 const MAX_IMPORT_ROWS = 5000;
-const SNAPSHOT_VERSION = 1;
-const MAX_SNAPSHOT_LENGTH = 2000;
+const SNAPSHOT_VERSION = 2;
+const MAX_SNAPSHOT_LENGTH = 12000;
+const SNAPSHOT_STALE_DAYS = 2;
 
 export const FEELINGS = [
     { value: 1, label: "Fresh" },
@@ -135,10 +136,16 @@ export function removePlayer(roster, playerId) {
 }
 
 export function availableOn(snapshot, date) {
-    return snapshot.availableDate === null || snapshot.availableDate <= date;
+    return (
+        daysBetween(snapshot.asOf, date) <= SNAPSHOT_STALE_DAYS &&
+        (snapshot.availableDate === null || snapshot.availableDate <= date)
+    );
 }
 
 export function rosterStatus(snapshot, today) {
+    if (staleDays(snapshot, today) > SNAPSHOT_STALE_DAYS) {
+        return { level: "unknown", daysShort: null };
+    }
     const daysShort =
         snapshot.availableDate === null
             ? 0
@@ -229,7 +236,14 @@ export function buildSnapshot(
         playerId: playerId || randomPlayerId(),
         name: String(name).trim(),
         teamCode: String(teamCode).trim().toUpperCase(),
+        ageGroup,
         asOf: today,
+        outings: sortOutings(outings).map(({ date, pitchCount, type, effort }) => ({
+            date,
+            pitchCount,
+            type,
+            effort,
+        })),
         availableDate: status.availableDate,
         sevenDayTotal: weeklyPitchTotal(outings, today),
         lastOuting: lastOuting
@@ -242,6 +256,21 @@ export function buildSnapshot(
         checkin: checkin
             ? { feeling: checkin.feeling, date: checkin.date }
             : null,
+    };
+}
+
+export function refreshSnapshot(snapshot, guidelines, today) {
+    const status = getStatus(
+        snapshot.outings,
+        snapshot.ageGroup,
+        guidelines,
+        today,
+        snapshot.checkin,
+    );
+    return {
+        ...snapshot,
+        availableDate: status.availableDate,
+        sevenDayTotal: weeklyPitchTotal(snapshot.outings, today),
     };
 }
 
@@ -309,6 +338,9 @@ export function decodeSnapshot(encoded) {
     if (!/^[A-Z0-9-]{2,12}$/.test(teamCode)) {
         return snapshotError("Snapshot team code is invalid");
     }
+    if (parsed.ageGroup !== "15-16" && parsed.ageGroup !== "17-18") {
+        return snapshotError("Snapshot age group is invalid");
+    }
     if (!validCalendarDate(parsed.asOf)) {
         return snapshotError("Snapshot as-of date is invalid");
     }
@@ -321,6 +353,21 @@ export function decodeSnapshot(encoded) {
         parsed.sevenDayTotal > 1400
     ) {
         return snapshotError("Snapshot total is invalid");
+    }
+
+    if (!Array.isArray(parsed.outings) || parsed.outings.length > 500) {
+        return snapshotError("Snapshot outings are invalid");
+    }
+    const outings = [];
+    for (const outing of parsed.outings) {
+        const error = validateOuting(outing, parsed.asOf);
+        if (error) return snapshotError("Snapshot outings are invalid");
+        outings.push({
+            date: outing.date,
+            pitchCount: outing.pitchCount,
+            type: outing.type,
+            effort: outing.effort,
+        });
     }
 
     let lastOuting = null;
@@ -367,7 +414,9 @@ export function decodeSnapshot(encoded) {
         playerId: parsed.playerId,
         name,
         teamCode,
+        ageGroup: parsed.ageGroup,
         asOf: parsed.asOf,
+        outings,
         availableDate: parsed.availableDate,
         sevenDayTotal: parsed.sevenDayTotal,
         lastOuting,
@@ -513,6 +562,18 @@ export function getStatus(outings, ageGroup, guidelines, today, checkin = null) 
               : outingReady > checkinReady
                 ? outingReady
                 : checkinReady;
+    const armConcern = checkin?.date === today && checkin.feeling >= 4;
+    if (armConcern) {
+        return {
+            level: "red",
+            availableDate: ready,
+            daysShort: ready === null ? null : Math.max(0, daysBetween(today, ready)),
+            reason: checkin.feeling === 5
+                ? "pain reported—stop and tell a coach, parent, or athletic trainer"
+                : "soreness reported—check with a coach before pitching",
+            armConcern: true,
+        };
+    }
     if (ready === null) {
         return {
             level: "green",
