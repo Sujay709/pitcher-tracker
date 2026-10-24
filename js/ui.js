@@ -410,7 +410,6 @@ export function setupShare({ getSnapshot, getShareUrl, onProfileSave, profile })
     const profileForm = document.getElementById("share-profile-form");
     const nameInput = document.getElementById("display-name");
     const teamInput = document.getElementById("team-code");
-    const openButton = document.getElementById("open-share");
     const shareSection = document.getElementById("share-section");
     const preview = document.getElementById("share-preview");
     const linkInput = document.getElementById("share-link");
@@ -465,29 +464,8 @@ export function setupShare({ getSnapshot, getShareUrl, onProfileSave, profile })
                 displayName: nameInput.value,
                 teamCode: teamInput.value,
             });
-            showStatus("Settings saved.");
-        } catch (error) {
-            console.error("Could not save profile:", error);
-            showStatus("Could not save settings. Please try again.", "error");
-        }
-    });
-
-    openButton.addEventListener("click", () => {
-        if (
-            nameInput.value.trim().length < 1 ||
-            nameInput.value.trim().length > 30 ||
-            !/^[A-Za-z0-9-]{2,12}$/.test(teamInput.value.trim())
-        ) {
-            nameInput.focus();
-            showStatus("Enter a display name up to 30 characters and a team code using 2-12 letters, numbers, or hyphens.", "error");
-            return;
-        }
-        try {
-            onProfileSave({
-                displayName: nameInput.value,
-                teamCode: teamInput.value,
-            });
             renderPreview();
+            showStatus("Update link created.");
         } catch (error) {
             console.error("Could not save profile:", error);
             showStatus("Could not save settings. Please try again.", "error");

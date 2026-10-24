@@ -45,8 +45,9 @@
         <a href="index.html?choose=1" class="switch-role-link">Switch role</a>
     </header>
 
-    <section aria-labelledby="share-settings-heading">
-        <h2 id="share-settings-heading">Share settings</h2>
+    <section class="share-card" aria-labelledby="share-settings-heading">
+        <h2 id="share-settings-heading">Send today's update</h2>
+        <p>Give your coach one link with your current rest status, recent pitches, and arm check-in.</p>
         <form id="share-profile-form">
             <div class="field">
                 <label for="display-name">Display name</label>
@@ -59,16 +60,16 @@
                 <input id="team-code" name="team-code" type="text"
                     maxlength="12" autocapitalize="characters"
                     placeholder="For example, AB-12">
+                <p class="field-hint">Use the code your coach gives your team.</p>
             </div>
-            <button id="save-profile" type="submit">Save settings</button>
+            <button id="open-share" type="submit">Create update link</button>
         </form>
-        <button id="open-share" type="button">Share with coach</button>
-        <p class="field-hint">Use a first name plus last initial if you prefer not to use your full name.</p>
+        <p class="field-hint">Your name, team code, and update stay on this device until you choose to share.</p>
     </section>
 
     <section id="share-section" aria-labelledby="share-heading" hidden>
-        <h2 id="share-heading">Share with coach</h2>
-        <p>This is exactly what will be sent:</p>
+        <h2 id="share-heading">Your update is ready</h2>
+        <p>Send this link to your coach in your team chat.</p>
         <pre id="share-preview" class="share-preview"></pre>
         <p class="share-safety-note">
             This includes arm health info. Share it only with your coach or team chat,
@@ -77,10 +78,11 @@
         <label for="share-link">Link</label>
         <input id="share-link" class="share-link" type="url" readonly>
         <div class="share-actions">
-            <button id="copy-share-link" type="button">Copy link</button>
-            <button id="native-share" type="button" hidden>Share using device</button>
+            <button id="copy-share-link" type="button">Copy update link</button>
+            <button id="native-share" type="button" hidden>Send from this device</button>
         </div>
         <p id="share-status" aria-live="polite"></p>
+        <p class="field-hint">Your coach opens the link, checks the update, and taps Add to roster. Nothing is sent to a server.</p>
     </section>
 
     <section class="counter-section" aria-labelledby="counter-heading">

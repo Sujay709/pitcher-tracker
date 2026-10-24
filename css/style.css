@@ -216,6 +216,10 @@ form {
     margin-bottom: var(--space-4);
 }
 
+.share-card {
+    border-color: var(--accent);
+}
+
 .share-preview {
     overflow-x: auto;
     margin: var(--space-3) 0;

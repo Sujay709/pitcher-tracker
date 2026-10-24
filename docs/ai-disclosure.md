@@ -1,2 +1,2 @@
 workload.js debugging
-AI fixed the confirmed audit bugs by validating stored data, hardening date and ID handling, preventing stale roster/status data, surfacing daily pitch-limit warnings, and adding regression coverage.
+AI fixed the confirmed audit bugs by validating stored data, hardening date and ID handling, preventing stale roster/status data, surfacing daily pitch-limit warnings, and adding regression coverage. AI also simplified the player-to-coach sharing flow and updated its related copy and documentation without changing the private URL-hash data format.

@@ -13,13 +13,13 @@
 </head>
 <body>
     <header>
-        <h1>Pitcher Workload Snapshot</h1>
+        <h1>Coach board</h1>
         <a href="index.html?choose=1" class="switch-role-link">Switch role</a>
     </header>
     <a href="player.html" class="app-link">Player App</a>
-    <section aria-labelledby="snapshot-heading">
-        <h2 id="snapshot-heading">Shared snapshot</h2>
-        <p id="snapshot-message" aria-live="polite">Loading snapshot...</p>
+    <section class="share-card" aria-labelledby="snapshot-heading">
+        <h2 id="snapshot-heading">Add a player</h2>
+        <p id="snapshot-message" aria-live="polite">Paste a player's update link below. You will review it before it is added.</p>
         <dl id="snapshot-details" class="snapshot-details" hidden></dl>
         <div id="snapshot-confirm" hidden>
             <p id="snapshot-confirmation"></p>
@@ -29,30 +29,27 @@
                 <button id="cancel-snapshot" class="counter-secondary" type="button">Cancel</button>
             </div>
         </div>
-        <p class="share-safety-note">
-            This includes arm health info. Keep it with the coach or team chat it was
-            shared with, and follow your team’s parent or coach rules.
-        </p>
+        <p class="share-safety-note">Player updates include arm health information. Keep links and roster data with the coaching staff.</p>
     </section>
     <section aria-labelledby="team-heading">
-        <h2 id="team-heading">Coach team</h2>
+        <h2 id="team-heading">Team code</h2>
         <form id="coach-team-form">
-            <label for="coach-team-code">Your team code</label>
+            <label for="coach-team-code">Your team's code</label>
             <input id="coach-team-code" type="text" maxlength="12"
                 autocapitalize="characters" placeholder="For example, AB-12">
-            <button type="submit">Save team code</button>
+            <button type="submit">Save code</button>
         </form>
         <p id="coach-team-status" aria-live="polite"></p>
     </section>
     <section aria-labelledby="paste-heading">
-        <h2 id="paste-heading">Paste a shared link</h2>
+        <h2 id="paste-heading">Paste player update</h2>
         <label for="snapshot-input">Full link or raw snapshot code</label>
         <textarea id="snapshot-input" rows="4"
-            placeholder="Paste a coach link or the code after #"></textarea>
-        <button id="load-snapshot" type="button">Preview snapshot</button>
+            placeholder="Paste the link your player sent"></textarea>
+        <button id="load-snapshot" type="button">Review player update</button>
     </section>
     <section aria-labelledby="roster-heading">
-        <h2 id="roster-heading">Roster</h2>
+        <h2 id="roster-heading">Your roster</h2>
         <div id="roster-groups"></div>
     </section>
     <section aria-labelledby="planner-heading">

@@ -155,7 +155,7 @@ function renderRoster() {
     if (roster.length === 0) {
         const empty = document.createElement("p");
         empty.textContent =
-            "No players yet. Ask players to use Share with coach and send you their link.";
+            "No players yet. Ask players to create an update link and send it to you.";
         rosterGroups.append(empty);
         renderPlanner();
         return;
@@ -199,7 +199,7 @@ function renderPlanner() {
     if (roster.length === 0) {
         const empty = document.createElement("p");
         empty.textContent =
-            "No players yet. Ask players to use Share with coach and send you their link.";
+            "No players yet. Ask players to create an update link and send it to you.";
         plannerResults.append(empty);
         return;
     }
@@ -317,6 +317,6 @@ if (initialEncoded) {
     clearHash();
     previewSnapshot(initialSnapshot);
 } else {
-    showMessage("Paste a shared link or snapshot code to preview it.");
+    showMessage("Paste a player's update link to review it before adding them.");
 }
 renderRoster();
