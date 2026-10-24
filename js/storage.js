@@ -1,4 +1,4 @@
-import { parseCount } from "./workload.js";
+import { parseCount, todayLocal, validateOuting } from "./workload.js";
 
 const STORAGE_KEY = "pitcherTracker.outings";
 const CHECKINS_STORAGE_KEY = "pitcherTracker.checkins";
@@ -15,7 +15,9 @@ export function loadOutings() {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw === null) return [];
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        return Array.isArray(parsed)
+            ? parsed.filter((outing) => !validateOuting(outing, todayLocal()))
+            : [];
     } catch (err) {
         console.error("Could not read saved outings:", err);
         return [];

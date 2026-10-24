@@ -561,6 +561,11 @@ export function runTests(guidelines) {
 
     const validationTests = [
         {
+            name: "null outing",
+            raw: null,
+            expected: "Date is required",
+        },
+        {
             name: "valid outing",
             raw: { date: "2026-10-09", pitchCount: 40, type: "game", effort: 5 },
             expected: null,

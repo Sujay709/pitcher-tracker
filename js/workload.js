@@ -70,6 +70,9 @@ export function sortOutings(outings) {
 const OUTING_TYPES = ["game", "liveBP", "bullpen", "longToss", "catch"];
 
 export function validateOuting(raw, today) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+        return "Date is required";
+    }
     if (!raw.date) return "Date is required";
     if (raw.date > today) return "Date cannot be in the future";
 
